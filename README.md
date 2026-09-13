@@ -1,17 +1,25 @@
-# Northline Home Services — Demo Site
+# Home Services Demo Sites
 
-A single-page demo website for a home-services / exterior-remodeling company (roofing focus), built as a portfolio piece. The look and structure are modeled on premium national remodelers: dark cinematic theme, bold condensed headlines, red accent, full-bleed hero, and scroll-driven animations.
+Two demo websites for home-services / exterior-remodeling companies (roofing focus), built as portfolio pieces. Both are plain HTML, CSS and JavaScript with no build step, no frameworks, and no dependencies beyond Google Fonts.
 
-**Stack:** plain HTML, CSS and JavaScript. No build step, no frameworks, no dependencies beyond Google Fonts.
+| Demo | Path | Direction |
+| --- | --- | --- |
+| **Northline Home Services** | `index.html` + `css/` + `js/` | Dark cinematic single-page site modeled on premium national remodelers: condensed uppercase headlines, red accent, animated SVG hero, scroll-driven interactions. |
+| **Summit Roofing Co.** | `summit/index.html` | Light navy-and-amber multi-page site in one file. Hash-based routing (`#/services/roof-replacement`), site search, project tracker, page-transition wipe, and a `CONFIG` object at the bottom of the file to re-skin the whole site per prospect. |
 
-## Run it
+## Run them
 
-Open `index.html` directly, or serve the folder:
+Open either `index.html` directly, or serve the folder:
 
 ```bash
 npx http-server . -p 8080
-# → http://localhost:8080
+# Northline → http://localhost:8080
+# Summit    → http://localhost:8080/summit/
 ```
+
+---
+
+# Northline Home Services
 
 ## What's in it
 

@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Summit Roofing Co. — Cincinnati</title>
+<!--
+  AhmsDev — Home Services Demo (multi-page, roofing edition)
+  Re-skin per prospect: edit CONFIG at the bottom. Nav groups, every
+  sub-page, swatches, features, FAQ, stats, and colors all live there.
+  Routing is hash-based (#/services/roof-replacement) so it works as one file.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0F2A44;--navy-deep:#081A2C;--navy-mid:#16385A;--navy-soft:#1C4670;
+  --white:#fff;--off:#F3F6F9;--ink:#0C1B2A;--muted:#5A6B7C;--line:#DCE3EA;
+  --accent:#F5A623;--accent-deep:#D98D0E;--roof:#3A4653;
+  --display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
+  --body:"Barlow","Helvetica Neue",Arial,sans-serif;--r:10px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--off:#F3F6F9}}
+:root[data-theme="dark"]{--off:#F3F6F9}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);color:var(--ink);background:var(--white);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img,svg{max-width:100%;display:block}
+a{color:inherit}button{font:inherit;cursor:pointer}
+.wrap{width:min(1200px,100% - 2.5rem);margin-inline:auto}
+h1,h2,h3{font-family:var(--display);text-transform:uppercase;line-height:.92;letter-spacing:.005em;font-weight:800}
+h2{font-size:clamp(2.6rem,6vw,4.8rem)}
+h3{font-size:1.5rem;font-weight:700}
+.lede{font-size:1.15rem;color:var(--muted);max-width:58ch}
+.kicker{font-family:var(--display);font-weight:700;letter-spacing:.16em;text-transform:uppercase;font-size:.85rem;color:var(--accent);margin-bottom:.75rem;display:flex;align-items:center;gap:.6rem}
+.kicker::before{content:"";width:28px;height:3px;background:var(--accent);display:inline-block}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.btn{display:inline-flex;align-items:center;gap:.6rem;font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:1.05rem;padding:1rem 1.7rem;border-radius:999px;border:2px solid transparent;text-decoration:none;position:relative;overflow:hidden;transition:transform .12s,background .15s,border-color .15s,color .15s}
+.btn:active{transform:scale(.96)}
+.btn svg{width:18px;height:18px;transition:transform .25s}
+.btn:hover svg{transform:translateX(4px)}
+.btn-accent{background:var(--accent);color:var(--ink)}.btn-accent:hover{background:var(--accent-deep)}
+.btn-ghost{color:#fff;border-color:rgba(255,255,255,.4)}.btn-ghost:hover{border-color:#fff;background:rgba(255,255,255,.06)}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:var(--navy-mid)}
+.btn-white{background:#fff;color:var(--navy)}.btn-white:hover{background:var(--off)}
+
+/* Reveal */
+.rv{opacity:0;transform:translateY(30px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+.rv-l{transform:translateX(-40px)}.rv-r{transform:translateX(40px)}.rv-s{transform:scale(.92)}
+.rv-d1{transition-delay:.1s}.rv-d2{transition-delay:.2s}.rv-d3{transition-delay:.3s}
+h2.rv .u{display:inline-block;position:relative}
+h2.rv .u::after{content:"";position:absolute;left:0;bottom:-.08em;height:.14em;width:100%;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .8s .4s cubic-bezier(.2,.8,.2,1)}
+h2.rv.in .u::after{transform:scaleX(1)}
+
+/* Progress + wipe */
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--accent);width:0;z-index:60;transition:width .1s linear}
+.wipe{position:fixed;inset:0;background:var(--accent);z-index:70;transform:scaleY(0);transform-origin:bottom;pointer-events:none}
+.wipe.in{animation:wipeIn .45s cubic-bezier(.7,0,.3,1) forwards}
+.wipe.out{transform-origin:top;animation:wipeOut .45s cubic-bezier(.7,0,.3,1) forwards}
+@keyframes wipeIn{to{transform:scaleY(1)}}@keyframes wipeOut{from{transform:scaleY(1)}to{transform:scaleY(0)}}
+.wipe .wl{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:clamp(2rem,6vw,4rem);color:var(--ink);opacity:0}
+.wipe.in .wl{animation:fade .3s .2s both}
+
+/* Nav */
+.nav{position:fixed;inset:0 0 auto 0;z-index:40;color:#fff;transition:background .3s,box-shadow .3s}
+.nav.solid,.nav.open{background:rgba(8,26,44,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 10px 30px -15px rgba(0,0,0,.5)}
+.nav>.wrap{display:flex;align-items:center;justify-content:space-between;height:76px;gap:1rem}
+.brand{display:flex;align-items:center;gap:.6rem;text-decoration:none;font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:1.4rem;letter-spacing:.03em;flex:none}
+.brand .mark{width:36px;height:36px}
+.nav-links{display:flex;gap:.25rem;align-items:center;height:100%}
+.nav-item{position:relative;height:100%;display:flex;align-items:center}
+.nav-item>a{color:#fff;font-weight:500;font-size:1rem;padding:.6rem .9rem;display:flex;align-items:center;gap:.4rem;opacity:.85;height:100%;border-radius:6px;text-decoration:none;position:relative}
+.nav-item>a svg{width:14px;height:14px;transition:transform .25s}
+.nav-item>a:hover,.nav-item.on>a{opacity:1}
+.nav-item.on>a svg{transform:rotate(180deg)}
+.nav-item>a::after{content:"";position:absolute;left:.9rem;right:.9rem;bottom:0;height:3px;background:var(--accent);transform:scaleX(0);transition:transform .25s;transform-origin:left}
+.nav-item.on>a::after,.nav-item.cur>a::after{transform:scaleX(1)}
+.menu{position:absolute;top:100%;left:0;min-width:320px;background:var(--navy-deep);border-top:3px solid var(--accent);border-radius:0 0 14px 14px;padding:1rem .75rem;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .25s,transform .25s}
+.nav-item.on .menu{opacity:1;transform:none;pointer-events:auto}
+.menu a{display:block;text-decoration:none;padding:.65rem .8rem;border-radius:8px;opacity:0;transform:translateX(-8px);transition:background .15s,opacity .3s,transform .3s}
+.menu a:hover{background:rgba(255,255,255,.07)}
+.menu a b{display:block;font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:1.05rem;font-weight:700}
+.menu a small{display:block;opacity:.6;font-size:.82rem}
+.nav-item.on .menu a{opacity:1;transform:none}
+.menu a:nth-child(n){transition-delay:calc(.04s * var(--n,1))}
+.menu.wide{min-width:600px;display:grid;grid-template-columns:1fr 1fr;gap:0 .5rem}
+.nav-right{display:flex;align-items:center;gap:.5rem}
+.icon-btn{width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.08);color:#fff;display:grid;place-items:center;transition:background .15s}
+.icon-btn:hover{background:rgba(255,255,255,.16)}.icon-btn svg{width:22px;height:22px}
+.nav .btn{padding:.7rem 1.25rem;font-size:.95rem}
+.burger{display:none;position:relative}
+.burger span{display:block;width:22px;height:2px;background:#fff;transition:transform .3s,opacity .3s;position:absolute;left:11px}
+.burger span:nth-child(1){top:15px}.burger span:nth-child(2){top:21px}.burger span:nth-child(3){top:27px}
+.nav.open .burger span:nth-child(1){transform:translateY(6px) rotate(45deg)}.nav.open .burger span:nth-child(2){opacity:0}.nav.open .burger span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+@media(max-width:980px){.nav-links{display:none}.nav .btn{display:none}.burger{display:grid}}
+
+/* Search */
+.search{position:fixed;inset:0;z-index:50;background:rgba(8,26,44,.97);color:#fff;padding:6rem 0 2rem;opacity:0;pointer-events:none;transition:opacity .3s;overflow:auto}
+.search.on{opacity:1;pointer-events:auto}
+.search .wrap{max-width:820px;transform:translateY(20px) scale(.98);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.search.on .wrap{transform:none}
+.search .close{position:absolute;top:1rem;right:1.25rem}
+.search-box{display:flex;align-items:center;gap:1rem;border-bottom:3px solid var(--accent);padding-bottom:.75rem}
+.search-box svg{width:32px;height:32px;color:var(--accent);flex:none}
+.search-box input{flex:1;background:none;border:0;color:#fff;font-family:var(--display);font-size:clamp(1.8rem,5vw,3rem);font-weight:700;text-transform:uppercase;outline:none;min-width:0}
+.search-box input::placeholder{color:rgba(255,255,255,.35)}
+.search h4{font-family:var(--display);text-transform:uppercase;letter-spacing:.14em;font-size:.85rem;color:var(--accent);margin:2rem 0 .75rem}
+.chips{display:flex;gap:.5rem;flex-wrap:wrap}
+.chip{border:1.5px solid rgba(255,255,255,.25);border-radius:999px;padding:.5rem 1rem;text-decoration:none;font-weight:500;transition:border-color .15s,background .15s}
+.chip:hover{border-color:var(--accent);background:rgba(245,166,35,.1)}
+.results a{display:flex;justify-content:space-between;gap:1rem;padding:.9rem .5rem;border-bottom:1px solid rgba(255,255,255,.1);text-decoration:none;animation:fade .3s both}
+.results a b{font-family:var(--display);text-transform:uppercase;font-size:1.15rem;font-weight:700}
+.results a small{opacity:.6}.results a span{opacity:.5;font-size:.85rem;flex:none;align-self:center}
+.results .none{opacity:.6;padding:1rem .5rem}
+
+/* Mobile menu */
+.mobile{position:fixed;inset:76px 0 0 0;z-index:39;background:var(--navy-deep);color:#fff;overflow:auto;transform:translateX(100%);transition:transform .4s cubic-bezier(.2,.8,.2,1);padding:1rem 0 3rem}
+.mobile.on{transform:none}
+.mobile .wrap{display:flex;flex-direction:column;gap:.25rem}
+.mob-item{border-bottom:1px solid rgba(255,255,255,.1);opacity:0;transform:translateX(30px);transition:opacity .4s,transform .4s}
+.mobile.on .mob-item{opacity:1;transform:none}
+.mobile.on .mob-item:nth-child(2){transition-delay:.05s}.mobile.on .mob-item:nth-child(3){transition-delay:.1s}.mobile.on .mob-item:nth-child(4){transition-delay:.15s}.mobile.on .mob-item:nth-child(5){transition-delay:.2s}
+.mob-item>div{display:flex;align-items:center;justify-content:space-between}
+.mob-item>div>a{flex:1;color:#fff;text-decoration:none;padding:1.1rem 0;font-family:var(--display);text-transform:uppercase;font-size:1.6rem;font-weight:700;letter-spacing:.03em}
+.mob-item>div>button{background:none;border:0;color:#fff;width:48px;height:48px;display:grid;place-items:center}
+.mob-item>div>button svg{width:24px;height:24px;transition:transform .3s}
+.mob-item.on>div>button svg{transform:rotate(180deg)}
+.mob-item .sub{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.mob-item.on .sub{max-height:700px}
+.mob-item .sub a{display:block;text-decoration:none;padding:.7rem 0 .7rem 1rem;border-left:2px solid rgba(255,255,255,.15);margin-bottom:.4rem;opacity:.85}
+.mob-item .sub a b{display:block;font-weight:600}.mob-item .sub a small{opacity:.6}
+.mobile .btn{margin-top:1.5rem;justify-content:center}
+.mob-search{display:flex;align-items:center;gap:.75rem;background:rgba(255,255,255,.08);border-radius:12px;padding:.85rem 1rem;margin-bottom:.75rem;border:0;color:#fff;width:100%;text-align:left;font-size:1rem}
+.mob-search svg{width:20px;height:20px;color:var(--accent)}
+
+/* Hero */
+.hero{background:var(--navy-deep);color:#fff;min-height:100svh;display:grid;align-items:center;padding:8rem 0 5rem;position:relative;overflow:hidden;isolation:isolate}
+.hero .bg{position:absolute;inset:0;z-index:-1;background:
+  radial-gradient(60% 50% at var(--mx,75%) var(--my,30%),rgba(28,70,112,.9),transparent 70%),
+  radial-gradient(40% 40% at 20% 80%,rgba(245,166,35,.12),transparent 70%),var(--navy-deep);transition:background .2s}
+.hero .streak{position:absolute;inset:-20%;z-index:-1;background:repeating-linear-gradient(115deg,transparent 0 120px,rgba(255,255,255,.025) 120px 122px);animation:drift 24s linear infinite}
+@keyframes drift{to{transform:translateX(240px)}}
+.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:160px;background:linear-gradient(to bottom,transparent,var(--navy-deep));pointer-events:none;z-index:-1}
+.hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:3rem;align-items:center}
+.hero h1{font-size:clamp(3.4rem,8.5vw,7.2rem);max-width:12ch;margin-bottom:1.25rem;font-weight:900}
+.hero h1 span{display:block;overflow:hidden;padding-bottom:.05em}
+.hero h1 span i{display:block;font-style:normal;transform:translateY(110%);animation:rise 1s cubic-bezier(.2,.8,.2,1) forwards}
+.hero h1 span:nth-child(2) i{animation-delay:.12s}.hero h1 span:nth-child(3) i{animation-delay:.24s;color:var(--accent)}
+@keyframes rise{to{transform:none}}
+.hero p{font-size:1.2rem;opacity:.85;max-width:44ch;margin-bottom:2rem;animation:fade 1s .5s both}
+.hero-actions{display:flex;gap:.8rem;flex-wrap:wrap;animation:fade 1s .7s both}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.hero-art{position:relative}
+.hero-art svg{width:100%;height:auto;filter:drop-shadow(0 40px 60px rgba(0,0,0,.55));overflow:visible}
+.layer{transform-box:fill-box;transform-origin:center;opacity:0;transform:translateY(-50px);animation:layer 1s cubic-bezier(.2,.8,.2,1) forwards}
+.layer:nth-child(1){animation-delay:.3s}.layer:nth-child(2){animation-delay:.5s}.layer:nth-child(3){animation-delay:.7s}.layer:nth-child(4){animation-delay:.9s}.layer:nth-child(5){animation-delay:1.15s}
+@keyframes layer{to{opacity:1;transform:none}}
+.lbl{opacity:0;animation:fade .5s 1.5s both}
+.hero-art .float{animation:float 6s ease-in-out infinite 1.6s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.scroll-cue{position:absolute;left:50%;bottom:1.5rem;transform:translateX(-50%);font-size:.75rem;letter-spacing:.25em;text-transform:uppercase;opacity:.6;display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.scroll-cue i{width:1px;height:36px;background:#fff;display:block;animation:cue 1.6s ease-in-out infinite;transform-origin:top}
+@keyframes cue{0%{transform:scaleY(0)}50%{transform:scaleY(1)}100%{transform:scaleY(0);transform-origin:bottom}}
+@media(max-width:900px){.hero .wrap{grid-template-columns:1fr}.hero-art{order:-1;max-width:400px;margin-inline:auto}.hero{min-height:auto;padding-top:7rem}}
+
+/* Marquee */
+.marquee{background:var(--accent);color:var(--ink);padding:1rem 0;overflow:hidden;border-top:4px solid var(--ink);border-bottom:4px solid var(--ink)}
+.marquee .track{display:flex;gap:3rem;width:max-content;animation:marq 28s linear infinite;font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;font-weight:800;font-size:1.25rem;white-space:nowrap}
+.marquee span{display:flex;align-items:center;gap:1rem}.marquee span::after{content:"◆";font-size:.7rem}
+@keyframes marq{to{transform:translateX(-50%)}}
+
+section{padding:7rem 0}
+.sec-head{margin-bottom:3.5rem}
+
+/* System */
+.system{background:var(--off);overflow:hidden}
+.system .wrap{display:grid;grid-template-columns:1fr 1.1fr;gap:4rem;align-items:center}
+.swatches{display:flex;gap:.9rem;flex-wrap:wrap;margin-top:1.75rem}
+.sw{display:flex;flex-direction:column;align-items:center;gap:.45rem;background:none;border:0;font-size:.85rem;font-weight:500;color:var(--muted);-webkit-tap-highlight-color:transparent}
+.sw i{width:58px;height:58px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px var(--line);transition:transform .2s,box-shadow .2s;background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.2) 0 3px,transparent 3px 9px)}
+.sw:hover i{transform:scale(1.08)}
+.sw.on i{box-shadow:0 0 0 3px var(--accent);transform:scale(1.12)}
+.sw.on{color:var(--ink);font-weight:600}
+.house-wrap{position:relative;border-radius:20px;overflow:hidden;box-shadow:0 40px 80px -30px rgba(15,42,68,.5)}
+.house-wrap svg{width:100%;height:auto}
+.house-wrap .pill{position:absolute;bottom:1rem;left:1rem;background:rgba(8,26,44,.85);color:#fff;padding:.5rem .9rem;border-radius:999px;font-family:var(--display);text-transform:uppercase;letter-spacing:.08em;font-weight:700;display:flex;gap:.5rem;align-items:center;backdrop-filter:blur(6px)}
+.house-wrap .pill i{width:14px;height:14px;border-radius:50%;background:var(--roof);transition:background .5s}
+.roof-fill{transition:fill .6s ease}
+.house-wrap.flash::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 30%,rgba(255,255,255,.55),transparent 55%);animation:flash .6s ease-out forwards;pointer-events:none}
+@keyframes flash{from{opacity:1}to{opacity:0}}
+.callout{margin-top:2rem;display:flex;gap:1rem;align-items:flex-start;background:#fff;border-left:4px solid var(--accent);padding:1.1rem 1.25rem;border-radius:0 var(--r) var(--r) 0;box-shadow:0 10px 30px -20px rgba(15,42,68,.3)}
+.callout strong{display:block;font-family:var(--display);text-transform:uppercase;font-size:1.2rem}
+.callout p{color:var(--muted);font-size:.95rem}
+@media(max-width:900px){.system .wrap{grid-template-columns:1fr}}
+
+/* Features */
+.features{background:var(--navy);color:#fff;position:relative;overflow:hidden}
+.features::before{content:"";position:absolute;right:-10%;top:-20%;width:60%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(28,70,112,.8),transparent 65%)}
+.features .lede{color:rgba(255,255,255,.7)}
+.feat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3rem 2rem;position:relative}
+.feat{text-align:center}
+.feat .ico{width:80px;height:80px;margin:0 auto 1rem;color:var(--accent)}
+.feat .ico path,.feat .ico rect,.feat .ico circle{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.4s ease .2s}
+.feat.in .ico path,.feat.in .ico rect,.feat.in .ico circle{stroke-dashoffset:0}
+.feat h3{font-size:1.4rem}.feat p{opacity:.7;font-size:.95rem;margin-top:.35rem}
+@media(max-width:900px){.feat-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* Before/after */
+.ba .cmp{position:relative;aspect-ratio:16/8;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 40px 80px -30px rgba(15,42,68,.5);user-select:none;touch-action:pan-y}
+.ba .cmp svg{position:absolute;inset:0;width:100%;height:100%}
+.ba .after{clip-path:inset(0 0 0 50%)}
+.ba .handle{position:absolute;top:0;bottom:0;left:50%;width:4px;background:#fff;transform:translateX(-50%);pointer-events:none}
+.ba .handle::after{content:"⇆";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:56px;height:56px;border-radius:50%;background:var(--accent);color:var(--ink);display:grid;place-items:center;font-size:1.4rem;font-weight:700;box-shadow:0 8px 20px rgba(0,0,0,.35)}
+.ba .tag{position:absolute;top:1rem;font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;font-weight:700;background:rgba(8,26,44,.8);color:#fff;padding:.45rem .9rem;border-radius:6px;pointer-events:none}
+.ba .tag.l{left:1rem}.ba .tag.r{right:1rem}
+.ba input[type=range]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0;-webkit-appearance:none}
+
+/* Stats */
+.stats{background:var(--off);padding:5rem 0}
+.stats .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;text-align:center}
+.stat b{display:block;font-family:var(--display);font-size:clamp(3rem,7vw,5.5rem);font-weight:900;line-height:1;color:var(--navy)}
+.stat span{color:var(--muted);font-weight:500}
+@media(max-width:760px){.stats .wrap{grid-template-columns:1fr 1fr}}
+
+/* Tracker */
+.tracker{background:var(--navy-deep);color:#fff;overflow:hidden}
+.tracker .wrap{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+.tracker ul{list-style:none;margin:1.5rem 0 2rem;display:grid;gap:.75rem}
+.tracker li{display:flex;gap:.75rem;align-items:center;font-size:1.05rem}
+.tracker li svg{width:22px;height:22px;color:var(--accent);flex:none}
+.phone{width:290px;margin-inline:auto;background:#0C1F33;border:8px solid #1C3B5C;border-radius:38px;padding:1.25rem 1rem;box-shadow:0 50px 90px -20px rgba(0,0,0,.7);position:relative;animation:float 7s ease-in-out infinite}
+.phone::before{content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);width:80px;height:6px;border-radius:3px;background:#1C3B5C}
+.phone .ph-h{font-family:var(--display);text-transform:uppercase;font-weight:700;font-size:1.1rem;margin:1rem 0 .75rem;display:flex;justify-content:space-between}
+.phone .ph-h small{font-family:var(--body);font-weight:500;opacity:.6;text-transform:none}
+.ph-step{display:flex;gap:.7rem;align-items:center;padding:.65rem .7rem;border-radius:10px;background:rgba(255,255,255,.05);margin-bottom:.5rem;font-size:.85rem;opacity:0;transform:translateX(20px);transition:opacity .5s,transform .5s}
+.in .ph-step{opacity:1;transform:none}
+.in .ph-step:nth-child(2){transition-delay:.15s}.in .ph-step:nth-child(3){transition-delay:.3s}.in .ph-step:nth-child(4){transition-delay:.45s}.in .ph-step:nth-child(5){transition-delay:.6s}.in .ph-step:nth-child(6){transition-delay:.75s}
+.ph-step i{width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:.7rem;font-weight:700;background:rgba(255,255,255,.15);font-style:normal}
+.ph-step.done i{background:var(--accent);color:var(--ink)}
+.ph-step.now{outline:1.5px solid var(--accent)}
+.ph-step.now i{background:var(--accent);color:var(--ink);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,166,35,.6)}50%{box-shadow:0 0 0 8px rgba(245,166,35,0)}}
+.ph-bar{height:6px;border-radius:3px;background:rgba(255,255,255,.1);margin:.75rem 0 0;overflow:hidden}
+.ph-bar i{display:block;height:100%;width:0;background:var(--accent);transition:width 1.6s .5s ease}
+.in .ph-bar i{width:52%}
+@media(max-width:900px){.tracker .wrap{grid-template-columns:1fr}}
+
+/* Testimonials */
+.testi{background:var(--white);text-align:center}
+.testi .quote-mark{font-family:var(--display);font-size:8rem;line-height:.5;color:var(--accent);font-weight:900}
+.slides{position:relative;min-height:220px;max-width:820px;margin:1rem auto 0}
+.slide{position:absolute;inset:0;opacity:0;transform:translateX(30px);transition:opacity .6s,transform .6s;pointer-events:none}
+.slide.on{opacity:1;transform:none;pointer-events:auto}
+.slide blockquote{font-family:var(--display);font-size:clamp(1.6rem,3.6vw,2.6rem);font-weight:600;line-height:1.15;text-transform:none;letter-spacing:0}
+.slide cite{display:block;margin-top:1.25rem;font-style:normal;color:var(--muted);font-weight:500}
+.slide .stars{color:var(--accent);letter-spacing:.15em;margin-top:.5rem}
+.dots{display:flex;gap:.5rem;justify-content:center;margin-top:1rem}
+.dots button{width:10px;height:10px;border-radius:50%;border:0;background:var(--line);transition:background .3s,transform .3s}
+.dots button.on{background:var(--accent);transform:scale(1.3)}
+
+/* Warranty */
+.warranty{background:var(--off)}
+.warranty .wrap{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+.warranty .art{border-radius:20px;overflow:hidden;box-shadow:0 30px 60px -25px rgba(15,42,68,.45);position:relative}
+.warranty .art svg{width:100%;height:auto}
+.seal{transform-box:fill-box;transform-origin:center;animation:spin 20s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.badge{display:inline-flex;align-items:center;gap:.6rem;background:#fff;border-radius:999px;padding:.5rem 1rem .5rem .5rem;font-weight:600;margin-top:1.5rem;box-shadow:0 10px 30px -15px rgba(15,42,68,.4)}
+.badge i{width:36px;height:36px;border-radius:50%;background:var(--accent);display:grid;place-items:center;font-family:var(--display);font-weight:800;color:var(--ink);font-style:normal}
+@media(max-width:900px){.warranty .wrap{grid-template-columns:1fr}}
+
+/* FAQ */
+.tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.tab{border:2px solid var(--line);background:#fff;border-radius:999px;padding:.6rem 1.2rem;font-family:var(--display);text-transform:uppercase;font-weight:700;letter-spacing:.06em;font-size:.95rem;color:var(--muted);transition:all .2s}
+.tab.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.faq-group{display:none}.faq-group.on{display:block}
+.faq-group.on .q{animation:fade .4s both}
+.faq-group.on .q:nth-child(2){animation-delay:.05s}.faq-group.on .q:nth-child(3){animation-delay:.1s}.faq-group.on .q:nth-child(4){animation-delay:.15s}
+.q{border-bottom:1px solid var(--line)}
+.q button{width:100%;background:none;border:0;text-align:left;padding:1.2rem 0;display:flex;justify-content:space-between;gap:1rem;align-items:center;font-size:1.15rem;font-weight:600}
+.q button svg{width:22px;height:22px;flex:none;transition:transform .3s}
+.q.open button svg{transform:rotate(45deg)}
+.q .a{max-height:0;overflow:hidden;transition:max-height .4s ease;color:var(--muted)}
+.q.open .a{max-height:300px}.q .a p{padding:0 0 1.2rem;max-width:70ch}
+
+/* Quote */
+.quote{background:var(--navy);color:#fff;position:relative;overflow:hidden}
+.quote::before{content:"";position:absolute;left:-10%;bottom:-40%;width:50%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(245,166,35,.15),transparent 65%)}
+.quote .wrap{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;position:relative}
+.quote h2{margin-bottom:1rem}
+.quote .big-phone{font-family:var(--display);font-size:clamp(2.2rem,5vw,3.6rem);font-weight:900;color:var(--accent);text-decoration:none;display:block;margin-top:1.5rem}
+.card{background:#fff;color:var(--ink);border-radius:20px;padding:1.9rem;box-shadow:0 40px 80px -30px rgba(0,0,0,.6)}
+.field{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.9rem}
+.field label{font-weight:600;font-size:.9rem}
+.field input,.field select,.field textarea{font:inherit;padding:.85rem .9rem;border:1.5px solid var(--line);border-radius:var(--r);background:var(--off);width:100%;transition:border-color .2s,box-shadow .2s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(15,42,68,.15)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.card .btn{width:100%;justify-content:center}
+.card .fine{font-size:.8rem;color:var(--muted);text-align:center;margin-top:.75rem}
+.card .done{display:none;text-align:center;padding:2rem 0}
+.card .done svg{width:64px;height:64px;color:var(--navy);margin:0 auto .75rem}
+.card .done svg path{stroke-dasharray:1;stroke-dashoffset:1;animation:draw .7s .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.card.sent form{display:none}.card.sent .done{display:block;animation:fade .4s both}
+@media(max-width:900px){.quote .wrap{grid-template-columns:1fr}}
+@media(max-width:520px){.row{grid-template-columns:1fr}}
+
+/* Awards + footer */
+.awards{padding:2.5rem 0;border-top:1px solid var(--line);background:#fff}
+.awards .wrap{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;font-family:var(--display);text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--muted)}
+.awards span{display:flex;align-items:center;gap:.5rem}.awards svg{width:20px;height:20px;color:var(--accent)}
+footer{background:var(--navy-deep);color:rgba(255,255,255,.75);padding:4rem 0 2rem;font-size:.95rem}
+.foot-grid{display:grid;grid-template-columns:1.5fr repeat(4,1fr);gap:2rem;margin-bottom:3rem}
+.foot-grid h4{font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;color:#fff;margin-bottom:.75rem;font-size:1rem}
+.foot-grid a{display:block;text-decoration:none;padding:.25rem 0;opacity:.75}.foot-grid a:hover{opacity:1;color:var(--accent)}
+.foot-grid .brand{margin-bottom:.75rem}
+.foot-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:1.5rem;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-size:.85rem}
+@media(max-width:900px){.foot-grid{grid-template-columns:1fr 1fr}}
+
+/* Sub-pages */
+.page-hero{background:var(--navy-deep);color:#fff;padding:10rem 0 5rem;position:relative;overflow:hidden}
+.page-hero::before{content:attr(data-num);position:absolute;right:-.05em;bottom:-.25em;font-family:var(--display);font-weight:900;font-size:clamp(12rem,30vw,26rem);line-height:1;color:rgba(255,255,255,.035);pointer-events:none}
+.page-hero .bg{position:absolute;inset:0;background:radial-gradient(60% 60% at 80% 20%,rgba(28,70,112,.9),transparent 70%)}
+.page-hero .wrap{position:relative;max-width:900px}
+.page-hero h1{font-size:clamp(3rem,8vw,6.5rem);font-weight:900;margin:.5rem 0 1.25rem}
+.page-hero h1 span{display:block;overflow:hidden}.page-hero h1 span i{display:block;font-style:normal;transform:translateY(110%);animation:rise .9s cubic-bezier(.2,.8,.2,1) forwards}
+.page-hero p{font-size:1.2rem;opacity:.85;max-width:56ch;animation:fade .8s .4s both}
+.crumbs{font-size:.9rem;opacity:.6;display:flex;gap:.5rem;animation:fade .6s .2s both}
+.crumbs a{text-decoration:none}
+.page-body .wrap{display:grid;grid-template-columns:1.2fr .8fr;gap:4rem;align-items:start}
+.page-body .prose p{font-size:1.1rem;color:var(--muted);margin-bottom:1.25rem;max-width:62ch}
+.page-body .prose h3{margin:2rem 0 .75rem;font-size:1.8rem}
+.side{position:sticky;top:6.5rem}
+.side .card{box-shadow:0 30px 60px -30px rgba(15,42,68,.4);border:1px solid var(--line)}
+.side .card h3{margin-bottom:.35rem}.side .card .sub{color:var(--muted);font-size:.95rem;margin-bottom:1rem}
+.hl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.hl{background:#fff;border-radius:16px;padding:1.75rem;border:1px solid var(--line);transition:transform .3s,box-shadow .3s}
+.hl:hover{transform:translateY(-6px);box-shadow:0 30px 50px -30px rgba(15,42,68,.4)}
+.hl .ico{width:48px;height:48px;color:var(--accent);margin-bottom:1rem}
+.hl h3{font-size:1.35rem;margin-bottom:.4rem}.hl p{color:var(--muted);font-size:.95rem}
+.hl-wrap{background:var(--off)}
+.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.pcard{position:relative;display:block;text-decoration:none;background:var(--navy);color:#fff;border-radius:18px;padding:2rem;min-height:220px;overflow:hidden;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.pcard::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 60% at 100% 100%,rgba(245,166,35,.25),transparent 70%);opacity:0;transition:opacity .35s}
+.pcard:hover{transform:translateY(-8px)}.pcard:hover::before{opacity:1}
+.pcard .num{font-family:var(--display);font-weight:900;font-size:3rem;line-height:1;color:var(--accent);opacity:.9}
+.pcard h3{margin-top:2rem;font-size:1.6rem}.pcard p{opacity:.7;margin-top:.35rem;font-size:.95rem}
+.pcard .go{position:absolute;right:1.5rem;bottom:1.5rem;width:40px;height:40px;border-radius:50%;background:var(--accent);color:var(--ink);display:grid;place-items:center;transition:transform .3s}
+.pcard:hover .go{transform:translateX(6px)}.pcard .go svg{width:20px;height:20px}
+@media(max-width:900px){.page-body .wrap{grid-template-columns:1fr}.side{position:static}.hl-grid,.card-grid{grid-template-columns:1fr}}
+@media(max-width:1100px) and (min-width:901px){.hl-grid,.card-grid{grid-template-columns:1fr 1fr}}
+.view{display:none}.view.on{display:block}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}.hero h1 span i,.page-hero h1 span i{transform:none}.layer,.lbl{opacity:1;transform:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="tex" width="40" height="14" patternUnits="userSpaceOnUse"><path d="M0 13.5H40M20 0V13" stroke="rgba(0,0,0,.32)"/><path d="M0 6.5h40" stroke="rgba(255,255,255,.07)"/></pattern>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4FA6E8"/><stop offset="1" stop-color="#D4EBFA"/></linearGradient>
+    <linearGradient id="sky-old" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8FA3B3"/><stop offset="1" stop-color="#C9D2DA"/></linearGradient>
+    <linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B3E63"/><stop offset="1" stop-color="#F5A623" stop-opacity=".5"/></linearGradient>
+  </defs>
+</svg>
+
+<div class="progress" id="progress"></div>
+<div class="wipe" id="wipe"><div class="wl" id="wipeLabel"></div></div>
+
+<nav class="nav" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#/">
+      <svg class="mark" viewBox="0 0 34 34" fill="none"><path d="M3 20 17 6l14 14" stroke="#F5A623" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 20v9h18v-9" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></svg>
+      <span data-c="name">Business</span>
+    </a>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <button class="icon-btn" id="searchBtn" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+      <a class="btn btn-accent" href="#/quote">Free quote</a>
+      <button class="icon-btn burger" id="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="mobile" id="mobile"><div class="wrap" id="mobileInner"></div></div>
+<div class="search" id="search" aria-hidden="true">
+  <button class="icon-btn close" id="searchClose" aria-label="Close search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <div class="wrap">
+    <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="searchInput" placeholder="What can we help with?" autocomplete="off"></div>
+    <div id="searchTop"><h4>Top searches</h4><div class="chips" id="chips"></div></div>
+    <div id="searchRes"><h4>Results</h4><div class="results" id="results"></div></div>
+  </div>
+</div>
+
+<!-- ================= HOME ================= -->
+<main class="view on" id="home">
+<header class="hero" id="top">
+  <div class="bg" id="heroBg"></div><div class="streak"></div>
+  <div class="wrap">
+    <div>
+      <h1><span><i>Roofing</i></span><span><i>built to</i></span><span><i>outlast you.</i></span></h1>
+      <p data-c="subhead">Subhead</p>
+      <div class="hero-actions">
+        <a class="btn btn-accent" href="#/quote">Get a free quote <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="btn btn-ghost" href="#system">Explore the system</a>
+      </div>
+    </div>
+    <div class="hero-art" id="heroArt">
+      <svg viewBox="0 0 520 420" xmlns="http://www.w3.org/2000/svg" aria-label="Exploded view of a layered roofing system">
+        <g transform="translate(60,70)" class="float">
+          <g class="layer"><polygon points="0,220 200,110 400,220 200,330" fill="#1C3B5C"/><polygon points="0,220 200,110 400,220 200,330" fill="#0C1F33" opacity=".4" transform="translate(0,18)"/><text class="lbl" x="420" y="240" fill="#fff" font-family="Barlow Condensed" font-weight="700" font-size="14" letter-spacing="1">RAFTERS</text></g>
+          <g class="layer"><polygon points="0,180 200,70 400,180 200,290" fill="#8B6A48"/><text class="lbl" x="420" y="200" fill="#fff" font-family="Barlow Condensed" font-weight="700" font-size="14" letter-spacing="1">DECK</text></g>
+          <g class="layer"><polygon points="0,140 200,30 400,140 200,250" fill="#2F4F6F"/><text class="lbl" x="420" y="160" fill="#fff" font-family="Barlow Condensed" font-weight="700" font-size="14" letter-spacing="1">ICE &amp; WATER</text></g>
+          <g class="layer"><polygon points="0,100 200,-10 400,100 200,210" class="roof-fill" fill="#3A4653" stroke="#000" stroke-opacity=".3"/><polygon points="0,100 200,-10 400,100 200,210" fill="url(#tex)"/><text class="lbl" x="420" y="120" fill="#F5A623" font-family="Barlow Condensed" font-weight="700" font-size="14" letter-spacing="1">SHINGLE</text></g>
+          <g class="layer"><polygon points="180,-6 200,-16 220,-6 200,4" fill="#F5A623"/><line x1="200" y1="-16" x2="200" y2="-60" stroke="#F5A623" stroke-width="2"/><text class="lbl" x="210" y="-52" fill="#F5A623" font-family="Barlow Condensed" font-weight="700" font-size="14" letter-spacing="1">RIDGE VENT</text></g>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <div class="scroll-cue">Scroll<i></i></div>
+</header>
+
+<div class="marquee"><div class="track" id="marq"></div></div>
+
+<section class="system" id="system">
+  <div class="wrap">
+    <div class="rv rv-l">
+      <div class="kicker" data-c="systemKicker">Kicker</div>
+      <h2 data-c="systemHead">Head</h2>
+      <p class="lede" style="margin-top:1rem" data-c="systemBody">Body</p>
+      <div class="swatches" id="swatches"></div>
+      <div class="callout"><div><strong data-c="calloutHead">Callout</strong><p data-c="calloutBody">Body</p></div></div>
+    </div>
+    <div class="house-wrap rv rv-r" id="houseWrap">
+      <svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg" aria-label="House preview in the selected shingle color">
+        <rect width="640" height="420" fill="url(#sky)"/>
+        <circle cx="90" cy="70" r="34" fill="#FFE07A"/>
+        <ellipse cx="200" cy="90" rx="70" ry="22" fill="#fff" opacity=".8"/><ellipse cx="480" cy="60" rx="60" ry="18" fill="#fff" opacity=".7"/>
+        <rect y="330" width="640" height="90" fill="#6FAA5E"/>
+        <path d="M0 340 Q 320 315 640 340 V420 H0Z" fill="#7CB56B"/>
+        <!-- trees -->
+        <rect x="52" y="250" width="14" height="90" fill="#6B4A2E"/><circle cx="59" cy="232" r="46" fill="#3E7C3A"/><circle cx="36" cy="256" r="30" fill="#4C8E46"/>
+        <rect x="585" y="270" width="12" height="70" fill="#6B4A2E"/><circle cx="591" cy="255" r="38" fill="#3E7C3A"/>
+        <!-- garage -->
+        <rect x="430" y="230" width="140" height="100" fill="#E6E0D4"/>
+        <polygon points="420,232 500,180 580,232" class="roof-fill" fill="#3A4653" stroke="#111" stroke-opacity=".35" stroke-width="2"/><polygon points="420,232 500,180 580,232" fill="url(#tex)"/>
+        <rect x="450" y="262" width="100" height="68" fill="#4E5C6A"/><path d="M450 279h100M450 296h100M450 313h100" stroke="#3A4653"/>
+        <!-- main house -->
+        <rect x="120" y="200" width="310" height="130" fill="#ECE6DA"/>
+        <rect x="120" y="200" width="310" height="130" fill="none" stroke="#C9C0B0"/>
+        <polygon points="100,205 275,80 450,205" class="roof-fill" fill="#3A4653" stroke="#111" stroke-opacity=".4" stroke-width="2"/><polygon points="100,205 275,80 450,205" fill="url(#tex)"/>
+        <polygon points="275,80 450,205 100,205" fill="none" stroke="#fff" stroke-opacity=".25"/>
+        <rect x="360" y="98" width="26" height="60" fill="#8B6A48"/><rect x="356" y="94" width="34" height="8" fill="#6B4A2E"/>
+        <!-- dormer -->
+        <rect x="235" y="140" width="80" height="60" fill="#ECE6DA"/><polygon points="225,142 275,108 325,142" class="roof-fill" fill="#3A4653" stroke="#111" stroke-opacity=".4" stroke-width="2"/><polygon points="225,142 275,108 325,142" fill="url(#tex)"/>
+        <rect x="255" y="152" width="40" height="40" fill="#6FAEE8"/><path d="M275 152v40M255 172h40" stroke="#fff" stroke-width="2"/>
+        <!-- windows/door -->
+        <rect x="150" y="225" width="56" height="56" fill="#6FAEE8"/><path d="M178 225v56M150 253h56" stroke="#fff" stroke-width="2"/>
+        <rect x="340" y="225" width="56" height="56" fill="#6FAEE8"/><path d="M368 225v56M340 253h56" stroke="#fff" stroke-width="2"/>
+        <rect x="248" y="240" width="54" height="90" fill="#3A2E24"/><circle cx="293" cy="288" r="3" fill="#F5A623"/>
+        <rect x="236" y="330" width="78" height="6" fill="#C9C0B0"/>
+        <!-- driveway -->
+        <path d="M440 330 L580 330 L640 420 L400 420Z" fill="#B9B4AC"/>
+      </svg>
+      <div class="pill"><i id="pillDot"></i><span id="pillName">Charcoal</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="wrap">
+    <div class="sec-head rv"><div class="kicker">What you get</div><h2 class="rv"><span class="u">Every layer,</span> done right</h2></div>
+    <div class="feat-grid" id="feat"></div>
+  </div>
+</section>
+
+<section class="ba" id="work">
+  <div class="wrap">
+    <div class="sec-head rv"><div class="kicker">Our work shows</div><h2>Drag to see the difference</h2></div>
+    <div class="cmp rv rv-s" id="cmp">
+      <svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <rect width="800" height="400" fill="url(#sky-old)"/><rect y="330" width="800" height="70" fill="#8FA07A"/>
+        <rect x="200" y="200" width="400" height="130" fill="#D8D2C6"/>
+        <polygon points="170,205 400,70 630,205" fill="#6E6A5E" stroke="#111" stroke-opacity=".3" stroke-width="2"/><polygon points="170,205 400,70 630,205" fill="url(#tex)"/>
+        <polygon points="300,150 340,127 360,140 320,163" fill="#4C4A44"/><polygon points="470,120 510,97 530,110 490,133" fill="#4C4A44"/><polygon points="380,105 405,90 418,98 393,113" fill="#4C4A44"/>
+        <ellipse cx="260" cy="180" rx="30" ry="12" fill="#5C7A3A" opacity=".7"/><ellipse cx="540" cy="175" rx="24" ry="10" fill="#5C7A3A" opacity=".7"/>
+        <rect x="240" y="225" width="60" height="55" fill="#9AB5CF"/><rect x="500" y="225" width="60" height="55" fill="#9AB5CF"/><rect x="370" y="245" width="60" height="85" fill="#3A2E24"/>
+      </svg>
+      <svg class="after" id="afterSvg" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <rect width="800" height="400" fill="url(#sky)"/><rect y="330" width="800" height="70" fill="#7CB56B"/>
+        <rect x="200" y="200" width="400" height="130" fill="#EDE7DA"/>
+        <polygon points="170,205 400,70 630,205" class="roof-fill" fill="#3A4653" stroke="#111" stroke-opacity=".4" stroke-width="2"/><polygon points="170,205 400,70 630,205" fill="url(#tex)"/>
+        <rect x="240" y="225" width="60" height="55" fill="#6FAEE8"/><rect x="500" y="225" width="60" height="55" fill="#6FAEE8"/><rect x="370" y="245" width="60" height="85" fill="#3A2E24"/>
+        <circle cx="100" cy="70" r="30" fill="#FFE07A"/>
+      </svg>
+      <div class="tag l">Before</div><div class="tag r">After</div>
+      <div class="handle" id="handle"></div>
+      <input type="range" min="0" max="100" value="50" id="slider" aria-label="Compare before and after">
+    </div>
+  </div>
+</section>
+
+<div class="stats"><div class="wrap" id="stats"></div></div>
+
+<section class="tracker" id="tracker">
+  <div class="wrap">
+    <div class="rv rv-l">
+      <div class="kicker">Track your project</div>
+      <h2>Know exactly where your roof stands</h2>
+      <p class="lede" style="color:rgba(255,255,255,.7);margin-top:1rem">Every job gets a private tracking page. No wondering when the crew shows up.</p>
+      <ul id="trackList"></ul>
+      <a class="btn btn-accent" href="#/support/track-your-project">See how it works <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+    <div class="rv rv-r">
+      <div class="phone">
+        <div class="ph-h">Your project <small>52%</small></div>
+        <div class="ph-step done"><i>✓</i>Estimate approved</div>
+        <div class="ph-step done"><i>✓</i>Materials delivered</div>
+        <div class="ph-step now"><i>3</i>Tear-off &amp; install — today</div>
+        <div class="ph-step"><i>4</i>Final walkthrough</div>
+        <div class="ph-step"><i>5</i>Warranty registered</div>
+        <div class="ph-bar"><i></i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="testi">
+  <div class="wrap">
+    <div class="rv"><div class="quote-mark">“</div></div>
+    <div class="slides rv rv-d1" id="slides"></div>
+    <div class="dots" id="dots"></div>
+  </div>
+</section>
+
+<section class="warranty" id="warranty">
+  <div class="wrap">
+    <div class="art rv rv-l">
+      <svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="640" height="420" fill="url(#dusk)"/>
+        <rect y="330" width="640" height="90" fill="#2E5A3A"/>
+        <rect x="120" y="200" width="400" height="130" fill="#D9D0C0"/>
+        <polygon points="100,205 320,70 540,205" class="roof-fill" fill="#3A4653" stroke="#111" stroke-opacity=".4" stroke-width="2"/><polygon points="100,205 320,70 540,205" fill="url(#tex)"/>
+        <rect x="150" y="225" width="60" height="60" fill="#FFE7A0"/><rect x="430" y="225" width="60" height="60" fill="#FFE7A0"/><rect x="290" y="240" width="60" height="90" fill="#3A2E24"/>
+        <g class="seal"><circle cx="540" cy="80" r="52" fill="#fff"/><circle cx="540" cy="80" r="46" fill="var(--accent)"/><path id="ring" d="M540 40a40 40 0 1 1 -.1 0" fill="none"/><text font-family="Barlow Condensed" font-weight="800" font-size="11" fill="#0C1B2A" letter-spacing="2"><textPath href="#ring">LIFETIME LABOR WARRANTY • LIFETIME LABOR WARRANTY •</textPath></text></g>
+        <text x="540" y="86" text-anchor="middle" font-family="Barlow Condensed" font-weight="900" font-size="26" fill="#0C1B2A">∞</text>
+      </svg>
+    </div>
+    <div class="rv rv-r">
+      <div class="kicker">Our guarantee</div>
+      <h2 data-c="warrantyHead">Head</h2>
+      <p class="lede" style="margin-top:1rem" data-c="warrantyBody">Body</p>
+      <div class="badge"><i>∞</i><span data-c="warrantyBadge">Badge</span></div>
+      <div style="margin-top:1.5rem"><a class="btn btn-navy" href="#/support/warranties">View warranties <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    </div>
+  </div>
+</section>
+
+<section class="faq" id="faq">
+  <div class="wrap">
+    <div class="sec-head rv"><div class="kicker">Questions</div><h2>Roofing FAQs</h2></div>
+    <div class="rv rv-d1"><div class="tabs" id="tabs"></div><div id="faqGroups"></div></div>
+  </div>
+</section>
+
+<div id="homeQuote"></div>
+<div class="awards"><div class="wrap" id="awards"></div></div>
+</main>
+
+<!-- ================= SUB-PAGE ================= -->
+<main class="view" id="page"></main>
+
+<footer><div class="wrap">
+  <div class="foot-grid" id="footGrid"></div>
+  <div class="foot-bottom">
+    <span>© <span id="year"></span> <span data-c="name">Business</span>. Licensed &amp; insured in Ohio.</span>
+    <span><a data-c="emailLink" href="mailto:">Email</a> · <a href="#/support/licenses-and-insurance">Licenses</a> · <a href="#/support/warranties">Warranties</a></span>
+  </div>
+</div></footer>
+
+<script>
+/* ================= CONFIG — edit per prospect ================= */
+const CONFIG = {
+  name: "Summit Roofing Co.",
+  phone: "(513) 555-0188",
+  email: "hello@summitroofingcincy.com",
+  hours: "Mon–Sat, 7am–7pm · 24h storm line",
+  subhead: "Premium architectural shingles, a fully ventilated deck, and a lifetime labor warranty — installed by a Cincinnati crew that's been on roofs since 2011.",
+  marquee: ["Licensed & insured", "Lifetime labor warranty", "4.9★ · 600+ reviews", "Same-week installs", "0% financing", "Storm claims handled"],
+  systemKicker: "The Summit roofing system",
+  systemHead: "Weather protection, layer by layer",
+  systemBody: "Your roof isn't one product — it's a system. Fresh deck inspection, ice-and-water barrier, synthetic underlayment, premium shingles, and ridge ventilation that keeps the attic cooler and the shingles alive longer. Tap a color to preview it on the house.",
+  swatches: [{n:"Charcoal",h:"#3A4653"},{n:"Weathered Wood",h:"#6B5B4A"},{n:"Slate Blue",h:"#43586B"},{n:"Driftwood",h:"#8C8375"},{n:"Terracotta",h:"#8F4B35"},{n:"Forest",h:"#3C5A45"}],
+  calloutHead: "Manufacturer-certified installers",
+  calloutBody: "Our crews hold the top installer certification from our shingle manufacturer — that's what unlocks the extended material warranty for you.",
+  features: [
+    {n:"Stain & fade resistant",d:"Algae-blocking granules keep dark streaks off the roof."},
+    {n:"Cooler attic",d:"Ridge and soffit vents move hot air out all summer."},
+    {n:"Waterproof barrier",d:"Ice-and-water shield at every eave, valley, and penetration."},
+    {n:"130 mph wind rated",d:"Six-nail pattern and sealed strips hold in Ohio storms."},
+    {n:"No warping",d:"Deck inspected and replaced where soft before anything goes on."},
+    {n:"Curb appeal",d:"Architectural profile with real shadow lines, in six colors."},
+    {n:"Full cleanup",d:"Magnet sweep for nails and a clean yard before we leave."},
+    {n:"Lifetime labor warranty",d:"If our work fails, we fix it. For as long as you own the home."}
+  ],
+  stats: [{v:2400,s:"+",l:"Roofs installed"},{v:14,s:"",l:"Years in business"},{v:1,s:" day",l:"Typical install"},{v:4.9,s:"★",l:"Average rating",dec:1}],
+  trackList: ["Appointment reminders by text","Daily photo updates from the roof","Sign paperwork from your phone","Warranty docs stored for good"],
+  reviews: [
+    {t:"They showed up the day they said, sent the quote that night, and the whole roof was done in one day. Zero drama.",w:"Kristin M., Anderson Township"},
+    {t:"Met the insurance adjuster for us and handled every bit of paperwork. We paid our deductible and that was it.",w:"Derek P., Hyde Park"},
+    {t:"Attic went from an oven to actually livable after they fixed the ventilation. Should've done it years ago.",w:"Sarah L., Mason"}
+  ],
+  warrantyHead: "If it's our fault, it's our fix",
+  warrantyBody: "You get the manufacturer's material warranty plus our own limited lifetime labor warranty, in writing. If something we installed ever leaks, we come back and make it right — no arguing, no fine print.",
+  warrantyBadge: "Lifetime labor warranty, transferable once",
+  faq: {
+    "General": [
+      ["What are signs my roof needs replacing?","Curling or missing shingles, granules in the gutters, daylight in the attic, or a roof over 20 years old. We'll tell you honestly if a repair is enough."],
+      ["Repair or replace?","If damage is isolated and the roof is under 12 years old, repair usually wins. Past that, patching often costs more over a few years than replacing once."],
+      ["How long does a new roof last?","Architectural shingles with proper ventilation typically last 25–30 years in Ohio's freeze-thaw climate."],
+      ["Can a new roof lower my insurance?","Many carriers discount for impact-rated shingles and a documented new install. We provide the paperwork."]
+    ],
+    "Process": [
+      ["How long does installation take?","Most homes are done in a single day. Larger or steep roofs can take two."],
+      ["Who actually does the work?","Our own employed crews — not day labor. The same lead installer stays on your job start to finish."],
+      ["Do I need to be home?","No. We'll text when we start, send photos during, and walk you through it at the end."]
+    ],
+    "Financing & warranty": [
+      ["What warranties come with it?","A manufacturer material warranty (up to 50 years on premium shingles) plus our limited lifetime labor warranty."],
+      ["Do you offer financing?","Yes — 0% for 12 months on approved credit, and longer terms available. No prepayment penalty."],
+      ["Do you work with insurance claims?","Every week. We meet the adjuster on site and handle the supplement paperwork."]
+    ]
+  },
+  awards: ["4.9★ on Google","A+ BBB rating","Manufacturer certified","Angi Super Service","Cincinnati Chamber member"],
+  topSearches: ["Free quote","Roof replacement","Warranty","Financing","Track my project","Storm damage"],
+
+  /* Nav groups → landing pages; each item → its own page */
+  nav: [
+    {label:"Services",slug:"services",wide:true,lede:"Everything on the outside of your house, from one crew that answers the phone.",items:[
+      {t:"Roof replacement",s:"roof-replacement",d:"Full tear-off and new system",body:["A replacement starts with a full tear-off — we never lay new shingles over old ones. Once the deck is exposed we inspect every sheet, replace anything soft, then build the system back up: ice-and-water barrier, synthetic underlayment, starter strip, premium architectural shingles, and ridge ventilation.","Most homes are finished in a single day. You'll get a text when we start, photos through the day, and a walkthrough with your lead installer before we leave."],hl:[["Full tear-off","No layering over old shingles, ever."],["Deck inspection","Soft plywood replaced before anything goes on."],["One-day install","Most homes done start to finish in a day."]]},
+      {t:"Roof repair",s:"roof-repair",d:"Leaks, storm damage, flashing",body:["Not every roof needs replacing. If the damage is isolated and the shingles have life left, a repair is the honest answer — and we'll tell you so. We handle missing shingles, failed pipe boots, chimney and skylight flashing, and storm blow-offs.","Every repair comes with a two-year workmanship warranty and photos of what we fixed."],hl:[["Same-week service","Repairs scheduled within the week."],["Photo documentation","Before and after, sent to your phone."],["Honest assessments","If it's a repair, we say so."]]},
+      {t:"Gutters & guards",s:"gutters",d:"Seamless aluminum, leaf guards",body:["Seamless aluminum gutters rolled on site to fit your house exactly, in 20 colors. Add leaf guards and you stop climbing ladders every fall.","We size downspouts for Ohio's downpours and pitch every run so nothing stands in the trough."],hl:[["Seamless","Rolled on site, no joints to leak."],["20 colors","Matched to your trim or fascia."],["Guards available","Never clean gutters again."]]},
+      {t:"Attic ventilation",s:"ventilation",d:"Ridge, soffit, and power vents",body:["Poor ventilation cooks shingles from underneath and fills the attic with moisture. We balance intake at the soffits with exhaust at the ridge so air actually moves.","It's the single biggest factor in how long your roof lasts — and one most roofers skip."],hl:[["Balanced airflow","Intake and exhaust matched to attic size."],["Cooler upstairs","Real difference in summer bedrooms."],["Longer shingle life","Heat is what kills shingles early."]]},
+      {t:"Skylights",s:"skylights",d:"Install and re-flash",body:["New skylight installs and re-flashing of old ones that have started to leak. We use factory flashing kits and integrate them with the ice-and-water barrier.","Ask about solar-powered venting models that open and close on a remote."],hl:[["Factory flashing","Manufacturer kits, not improvised."],["Leak-free","Integrated with the water barrier."],["Venting models","Let hot air out on its own."]]},
+      {t:"Siding",s:"siding",d:"Vinyl and fiber cement",body:["Insulated vinyl and fiber-cement siding, installed with proper house wrap and flashing at every window and door. Often paired with a roof so the whole exterior is done at once.","We'll show you samples in person so you see the color on your house, not a screen."],hl:[["Insulated vinyl","Warmer walls and a quieter house."],["Fiber cement","Looks like wood, lasts like stone."],["Bundle savings","Roof plus siding scheduled together."]]},
+      {t:"Storm & insurance",s:"storm",d:"We meet the adjuster on site",body:["After hail or wind, we inspect for free and document everything. If there's a claim, we meet your adjuster on the roof, walk them through the damage, and handle the supplement paperwork.","You pay your deductible — we handle the rest."],hl:[["Free inspection","Documented with photos and a report."],["Adjuster meeting","We're there so nothing gets missed."],["Emergency tarping","24-hour line for active leaks."]]},
+      {t:"Commercial",s:"commercial",d:"Flat and low-slope",body:["TPO and modified bitumen for flat and low-slope roofs on small commercial buildings, churches, and multi-family.","Maintenance plans available so small issues never become big ones."],hl:[["TPO & mod-bit","Right membrane for the building."],["Maintenance plans","Twice-yearly inspections."],["Minimal disruption","Scheduled around your business hours."]]}
+    ]},
+    {label:"About",slug:"about",lede:"A Cincinnati crew that's been on roofs since 2011.",items:[
+      {t:"Our story",s:"our-story",d:"Family-run since 2011",body:["Summit started with one truck and a lot of tear-offs in Anderson Township. Fourteen years and 2,400 roofs later, we're still family-run, still local, and still on the roof ourselves.","Nothing about the way we work is complicated: show up, do it right, put it in writing."],hl:[["2011","One truck, east side."],["2,400+ roofs","Across Greater Cincinnati."],["Still family-run","Same owners, same standards."]]},
+      {t:"Our crews",s:"our-crews",d:"Employed, not day labor",body:["Every installer is a Summit employee — trained, insured, and background-checked. No subcontractors, no rotating faces. The lead on your job has been with us at least five years.","That's why we can stand behind a lifetime labor warranty."],hl:[["W-2 employees","Not subs, not day labor."],["Certified","Manufacturer-trained installers."],["Same lead all job","One person who knows your roof."]]},
+      {t:"Community",s:"community",d:"Roofs for Neighbors program",body:["Each year we replace a roof at no cost for a family in need, nominated by neighbors. We also sponsor youth sports across the east side and show up for storm cleanups.","We live here. It's not marketing."],hl:[["Free roof yearly","Nominated by the community."],["Youth sports","Local team sponsorships."],["Storm response","Tarping for neighbors first."]]},
+      {t:"Reviews",s:"reviews",d:"600+ homeowners",body:["A 4.9-star average across 600+ reviews on Google, plus references on request. Read what neighbors say and ask to see the work in person.","We'll give you addresses of recent jobs so you can drive by."],hl:[["4.9 stars","Across 600+ reviews."],["References","Real homeowners, real phone numbers."],["Drive-by list","See our work before you buy."]]}
+    ]},
+    {label:"Careers",slug:"careers",lede:"Year-round work with a crew that trains from the ground up.",items:[
+      {t:"Open positions",s:"open-positions",d:"Installers, estimators, office",body:["We're hiring roofing installers, a project estimator, and an office coordinator. Competitive pay, health insurance, 401(k) match, and year-round work — winter is gutters and interior prep, not layoffs.","Send a message through the quote form or call and ask for the office."],hl:[["Installers","Experienced or apprentice."],["Estimator","Field measuring and client visits."],["Office","Scheduling and customer care."]]},
+      {t:"Apprenticeship",s:"apprenticeship",d:"Paid training, no experience needed",body:["Our 12-week paid apprenticeship takes you from never having held a nail gun to working on a crew. You're paid from day one and get certified at the end.","Most of our lead installers started here."],hl:[["Paid from day one","No unpaid training."],["12 weeks","Structured, on real jobs."],["Certification","Manufacturer credential at completion."]]},
+      {t:"Benefits",s:"benefits",d:"Health, 401k, year-round work",body:["Health, dental, and vision. 401(k) with company match. Paid time off, paid holidays, and year-round work so you're not scrambling every December.","Tools and PPE provided. Company trucks for leads."],hl:[["Health & dental","Company contributes."],["401(k) match","Retirement that actually grows."],["Year-round","No seasonal layoffs."]]}
+    ]},
+    {label:"Support",slug:"support",lede:"Already a customer? Everything you need is here.",items:[
+      {t:"Track your project",s:"track-your-project",d:"Live status, photos, paperwork",body:["Every job gets a private tracking page. See your next appointment, daily photos from the crew, and every document in one place. Sign approvals from your phone.","Your link is texted to you the day you approve the estimate."],hl:[["Live status","Know what's happening today."],["Daily photos","Straight from the roof."],["E-sign","Approvals without printing."]]},
+      {t:"Warranties",s:"warranties",d:"What's covered and how to claim",body:["Two warranties come with every Summit roof: the manufacturer's material warranty (up to 50 years on premium shingles) and our limited lifetime labor warranty. Both are registered for you and stored on your project page.","To make a claim, call or text. We schedule a visit within the week."],hl:[["Material","Up to 50 years, manufacturer-backed."],["Labor","Lifetime, transferable once."],["Fast claims","Visit scheduled within a week."]]},
+      {t:"Financing",s:"financing",d:"0% for 12 months, OAC",body:["0% APR for 12 months on approved credit, with longer terms available up to 10 years. Apply in five minutes with your estimator — no hard pull until you choose a plan.","No prepayment penalty on any plan."],hl:[["0% for 12 months","On approved credit."],["Up to 10 years","Lower monthly options."],["No penalty","Pay off early anytime."]]},
+      {t:"Licenses & insurance",s:"licenses-and-insurance",d:"Ohio license and coverage docs",body:["Licensed in the State of Ohio, with general liability and workers' compensation coverage on every job. Certificates are available on request and attached to every estimate.","Ask any roofer for these before you sign. If they hesitate, walk."],hl:[["Ohio licensed","Number on every estimate."],["$2M liability","Certificate on request."],["Workers' comp","You're never on the hook."]]},
+      {t:"Emergency tarping",s:"emergency",d:"24-hour storm line",body:["If your roof is actively leaking after a storm, call the 24-hour line. We'll tarp it the same day to stop the water, then schedule a full inspection.","Tarping is free if we do the repair."],hl:[["24-hour line","Same-day response."],["Free with repair","Tarp cost credited back."],["Photos for insurance","Documented from the start."]]}
+    ]}
+  ],
+  colors:{navy:"#0F2A44",accent:"#F5A623"}
+};
+
+/* ================= App ================= */
+(function(){
+  const $=s=>document.querySelector(s),$$=(s,c=document)=>[...c.querySelectorAll(s)];
+  const root=document.documentElement.style;
+  if(CONFIG.colors.navy)root.setProperty("--navy",CONFIG.colors.navy);
+  if(CONFIG.colors.accent)root.setProperty("--accent",CONFIG.colors.accent);
+  const tel="tel:"+CONFIG.phone.replace(/[^\d+]/g,"");
+  const arrow='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  const chk='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg>';
+  const chev='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
+  const plus='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+
+  const fill=()=>{$$('[data-c]').forEach(el=>{const k=el.dataset.c;
+    if(k==="phoneLink"){el.href=tel;return}
+    if(k==="emailLink"){el.href="mailto:"+CONFIG.email;el.textContent=CONFIG.email;return}
+    if(CONFIG[k]!==undefined)el.textContent=CONFIG[k];});};
+  fill();document.title=CONFIG.name+" — Cincinnati";$("#year").textContent=new Date().getFullYear();
+
+  /* ---- Quote block (shared by home + every sub-page) ---- */
+  const quoteHTML=(title="Let's look at your roof")=>`<section class="quote" id="quote"><div class="wrap">
+    <div class="rv rv-l"><div class="kicker">Free estimate</div><h2>${title}</h2><p class="lede" style="color:rgba(255,255,255,.75)">A written price the same day we visit. No pressure, no surprises.</p>
+      <a class="big-phone" href="${tel}">${CONFIG.phone}</a><p style="opacity:.7;margin-top:.25rem">${CONFIG.hours}</p></div>
+    <div class="card rv rv-r"><form class="qf" novalidate>
+      <div class="row"><div class="field"><label>Name</label><input required autocomplete="name" data-f="n"></div><div class="field"><label>Phone</label><input type="tel" required autocomplete="tel" data-f="p"></div></div>
+      <div class="field"><label>Address</label><input autocomplete="street-address" placeholder="So we can check the roof on satellite"></div>
+      <div class="field"><label>What's going on?</label><select><option>Full replacement</option><option>Leak or storm damage</option><option>Inspection / not sure</option><option>Gutters or ventilation</option></select></div>
+      <button class="btn btn-navy" type="submit">Request my free quote ${arrow}</button><p class="fine">One call or text to schedule. That's it.</p></form>
+      <div class="done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" pathLength="1"/><path d="m8 12 3 3 5-6" pathLength="1"/></svg><h3>Quote requested</h3><p style="color:var(--muted)">We'll reach out the same business day.</p></div></div>
+  </div></section>`;
+  const bindQuote=c=>$$(".qf",c).forEach(f=>f.addEventListener("submit",e=>{e.preventDefault();const n=f.querySelector('[data-f="n"]'),p=f.querySelector('[data-f="p"]');if(!n.value.trim()||!p.value.trim()){(n.value.trim()?p:n).focus();return}f.closest(".card").classList.add("sent")}));
+  $("#homeQuote").innerHTML=quoteHTML();bindQuote($("#homeQuote"));
+
+  /* ---- Home content ---- */
+  $("#marq").innerHTML=[...CONFIG.marquee,...CONFIG.marquee].map(t=>`<span>${t}</span>`).join("");
+  $("#awards").innerHTML=CONFIG.awards.map(t=>`<span>${chk}${t}</span>`).join("");
+  $("#trackList").innerHTML=CONFIG.trackList.map(t=>`<li>${chk}${t}</li>`).join("");
+
+  // Roof color — plain fills on every .roof-fill (works in Safari)
+  const paint=(hex,name)=>{root.setProperty("--roof",hex);$$(".roof-fill").forEach(el=>{el.style.fill=hex;el.setAttribute("fill",hex)});$("#pillName").textContent=name;
+    const hw=$("#houseWrap");hw.classList.remove("flash");void hw.offsetWidth;hw.classList.add("flash");};
+  $("#swatches").innerHTML=CONFIG.swatches.map((s,i)=>`<button class="sw${i?"":" on"}" type="button" data-h="${s.h}" data-n="${s.n}"><i style="background-color:${s.h}"></i>${s.n}</button>`).join("");
+  paint(CONFIG.swatches[0].h,CONFIG.swatches[0].n);$("#houseWrap").classList.remove("flash");
+  $("#swatches").addEventListener("click",e=>{const b=e.target.closest(".sw");if(!b)return;$$(".sw").forEach(x=>x.classList.remove("on"));b.classList.add("on");paint(b.dataset.h,b.dataset.n)});
+
+  const icons=['<path d="M12 3l9 6-9 6-9-6z"/><path d="M3 15l9 6 9-6"/>','<path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>','<path d="M12 2.7c-3 4-6 7.5-6 11.3a6 6 0 0 0 12 0c0-3.8-3-7.3-6-11.3z"/>','<path d="M3 8h11a3 3 0 1 0-3-3M3 14h14a3 3 0 1 1-3 3M3 11h7"/>','<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>','<path d="M3 21h18M5 21V10l7-6 7 6v11M10 21v-6h4v6"/>','<path d="M4 20l4-4M20 4l-8 8M14 6l4 4M8 14l2 2"/>','<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>'];
+  const ico=i=>`<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${icons[i%icons.length].replace(/<(path|rect|circle)/g,'<$1 pathLength="1"')}</svg>`;
+  $("#feat").innerHTML=CONFIG.features.map((f,i)=>`<div class="feat rv" style="transition-delay:${(i%4)*.1}s">${ico(i)}<h3>${f.n}</h3><p>${f.d}</p></div>`).join("");
+
+  $("#stats").innerHTML=CONFIG.stats.map((s,i)=>`<div class="stat rv" style="transition-delay:${i*.08}s"><b data-v="${s.v}" data-s="${s.s}" data-dec="${s.dec||0}">0${s.s}</b><span>${s.l}</span></div>`).join("");
+  const countUp=el=>{if(el.dataset.done)return;el.dataset.done=1;const v=+el.dataset.v,dec=+el.dataset.dec,suf=el.dataset.s,t0=performance.now(),dur=1600;
+    const step=t=>{const p=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-p,3);el.textContent=(v*e).toFixed(dec).replace(/\B(?=(\d{3})+(?!\d))/g,",")+suf;if(p<1)requestAnimationFrame(step)};requestAnimationFrame(step)};
+
+  // Testimonials
+  $("#slides").innerHTML=CONFIG.reviews.map((r,i)=>`<div class="slide${i?"":" on"}"><blockquote>${r.t}</blockquote><div class="stars">★★★★★</div><cite>${r.w}</cite></div>`).join("");
+  $("#dots").innerHTML=CONFIG.reviews.map((_,i)=>`<button class="${i?"":"on"}" data-i="${i}" aria-label="Review ${i+1}"></button>`).join("");
+  let cur=0,timer;const show=i=>{cur=(i+CONFIG.reviews.length)%CONFIG.reviews.length;$$(".slide").forEach((s,k)=>s.classList.toggle("on",k===cur));$$(".dots button").forEach((d,k)=>d.classList.toggle("on",k===cur))};
+  const auto=()=>{clearInterval(timer);timer=setInterval(()=>show(cur+1),4500)};auto();
+  $("#dots").addEventListener("click",e=>{const d=e.target.closest("button");if(d){show(+d.dataset.i);auto()}});
+
+  // FAQ
+  const groups=Object.keys(CONFIG.faq);
+  $("#tabs").innerHTML=groups.map((g,i)=>`<button class="tab${i?"":" on"}" data-g="${i}">${g}</button>`).join("");
+  $("#faqGroups").innerHTML=groups.map((g,i)=>`<div class="faq-group${i?"":" on"}" data-g="${i}">${CONFIG.faq[g].map(([q,a])=>`<div class="q"><button type="button" aria-expanded="false">${q}${plus}</button><div class="a"><p>${a}</p></div></div>`).join("")}</div>`).join("");
+  $("#tabs").addEventListener("click",e=>{const t=e.target.closest(".tab");if(!t)return;$$(".tab").forEach(x=>x.classList.toggle("on",x===t));$$(".faq-group").forEach(x=>x.classList.toggle("on",x.dataset.g===t.dataset.g))});
+  document.addEventListener("click",e=>{const b=e.target.closest(".q > button");if(!b)return;const q=b.parentElement;const open=q.classList.toggle("open");b.setAttribute("aria-expanded",open)});
+
+  // Before/after
+  const sl=$("#slider"),af=$("#afterSvg"),hd=$("#handle");
+  const setPos=v=>{af.style.clipPath=`inset(0 0 0 ${v}%)`;hd.style.left=v+"%"};
+  sl.addEventListener("input",()=>setPos(sl.value));setPos(50);
+  let nudged=false;const nudge=()=>{if(nudged)return;nudged=true;const t0=performance.now();const step=t=>{const p=Math.min(1,(t-t0)/1800);const v=50+Math.sin(p*Math.PI*2)*18*(1-p);setPos(v);sl.value=v;if(p<1)requestAnimationFrame(step)};requestAnimationFrame(step)};
+
+  /* ---- Nav ---- */
+  const nav=$("#nav");
+  $("#navLinks").innerHTML=CONFIG.nav.map(g=>`<div class="nav-item" data-slug="${g.slug}"><a href="#/${g.slug}">${g.label}${chev}</a><div class="menu${g.wide?" wide":""}">${g.items.map((it,i)=>`<a href="#/${g.slug}/${it.s}" style="--n:${i+1}"><b>${it.t}</b><small>${it.d}</small></a>`).join("")}</div></div>`).join("");
+  const items=$$(".nav-item");const closeAll=()=>items.forEach(it=>it.classList.remove("on"));
+  const hover=matchMedia("(hover:hover)").matches;
+  items.forEach(it=>{const a=it.querySelector("a");
+    a.addEventListener("click",e=>{if(!hover){e.preventDefault();const was=it.classList.contains("on");closeAll();if(!was)it.classList.add("on")}});
+    it.addEventListener("mouseenter",()=>{if(hover){closeAll();it.classList.add("on")}});
+    it.addEventListener("mouseleave",()=>{if(hover)it.classList.remove("on")});});
+  document.addEventListener("click",e=>{if(!e.target.closest(".nav-item"))closeAll()});
+
+  const mob=$("#mobile"),burger=$("#burger");
+  $("#mobileInner").innerHTML=`<button class="mob-search" id="mobSearch">${'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>'}Search</button>`+
+    CONFIG.nav.map(g=>`<div class="mob-item"><div><a href="#/${g.slug}">${g.label}</a><button type="button" aria-label="Expand">${chev}</button></div><div class="sub">${g.items.map(it=>`<a href="#/${g.slug}/${it.s}"><b>${it.t}</b><small>${it.d}</small></a>`).join("")}</div></div>`).join("")+
+    `<a class="btn btn-accent" href="#/quote">Get a free quote</a>`;
+  const setMob=on=>{mob.classList.toggle("on",on);nav.classList.toggle("open",on);burger.setAttribute("aria-expanded",on);document.body.style.overflow=on?"hidden":""};
+  burger.addEventListener("click",()=>setMob(!mob.classList.contains("on")));
+  $$(".mob-item > div > button").forEach(b=>b.addEventListener("click",()=>{const it=b.closest(".mob-item");const was=it.classList.contains("on");$$(".mob-item").forEach(x=>x.classList.remove("on"));if(!was)it.classList.add("on")}));
+
+  /* ---- Search ---- */
+  const search=$("#search"),inp=$("#searchInput"),res=$("#results");
+  const index=[...CONFIG.nav.flatMap(g=>g.items.map(it=>({t:it.t,h:`#/${g.slug}/${it.s}`,d:it.d,g:g.label}))),{t:"Get a free quote",h:"#/quote",d:"Same-day written estimate",g:"Quote"},{t:"Roofing FAQs",h:"#faq",d:"Common questions answered",g:"Support"}];
+  const openSearch=()=>{setMob(false);search.classList.add("on");search.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";setTimeout(()=>inp.focus(),80)};
+  const closeSearch=()=>{search.classList.remove("on");search.setAttribute("aria-hidden","true");document.body.style.overflow="";inp.value="";renderRes("")};
+  const renderRes=q=>{q=q.trim().toLowerCase();$("#searchTop").style.display=q?"none":"";$("#searchRes").style.display=q?"":"none";if(!q)return;
+    const hits=index.filter(x=>(x.t+" "+x.d+" "+x.g).toLowerCase().includes(q));
+    res.innerHTML=hits.length?hits.map((x,i)=>`<a href="${x.h}" style="animation-delay:${i*.04}s"><div><b>${x.t}</b><small>${x.d}</small></div><span>${x.g}</span></a>`).join(""):`<div class="none">No matches. Try "quote" or "warranty".</div>`};
+  $("#chips").innerHTML=CONFIG.topSearches.map(t=>`<a class="chip" href="#" data-q="${t}">${t}</a>`).join("");
+  $("#chips").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;e.preventDefault();inp.value=c.dataset.q;renderRes(inp.value);inp.focus()});
+  $("#searchBtn").addEventListener("click",openSearch);
+  document.addEventListener("click",e=>{if(e.target.closest("#mobSearch"))openSearch()});
+  $("#searchClose").addEventListener("click",closeSearch);
+  inp.addEventListener("input",()=>renderRes(inp.value));
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeSearch();setMob(false);closeAll()}});
+  renderRes("");
+
+  /* ---- Footer ---- */
+  $("#footGrid").innerHTML=`<div><a class="brand" href="#/"><svg class="mark" viewBox="0 0 34 34" fill="none"><path d="M3 20 17 6l14 14" stroke="#F5A623" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 20v9h18v-9" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></svg>${CONFIG.name}</a><p style="opacity:.7;max-width:30ch">${CONFIG.hours}</p><a href="${tel}" style="color:var(--accent);font-family:var(--display);font-size:1.4rem;font-weight:800;margin-top:.5rem">${CONFIG.phone}</a></div>`+
+    CONFIG.nav.map(g=>`<div><h4>${g.label}</h4>${g.items.map(it=>`<a href="#/${g.slug}/${it.s}">${it.t}</a>`).join("")}</div>`).join("");
+
+  /* ---- Reveal ---- */
+  let io;const observe=(scope=document)=>{io=io||new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){reveal(en.target);io.unobserve(en.target)}}),{threshold:.12,rootMargin:"0px 0px -6% 0px"});$$(".rv",scope).forEach(el=>io.observe(el))};
+  const reveal=el=>{el.classList.add("in");if(el.classList.contains("stat"))countUp(el.querySelector("b"));if(el.id==="cmp")setTimeout(nudge,500)};
+  const sweep=()=>$$(".rv:not(.in)").forEach(el=>{const r=el.getBoundingClientRect();if(r.top<innerHeight*.94&&r.bottom>0){reveal(el);io&&io.unobserve(el)}});
+  addEventListener("scroll",sweep,{passive:true});
+
+  /* ---- Router ---- */
+  const home=$("#home"),page=$("#page"),wipe=$("#wipe"),wl=$("#wipeLabel");
+  const findGroup=s=>CONFIG.nav.find(g=>g.slug===s);
+  const hlIcons=['<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>','<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>','<path d="M20 6 9 17l-5-5"/>'];
+  const pageHTML=(g,it)=>{
+    const num=String(g.items.indexOf(it)+1).padStart(2,"0");
+    return `<header class="page-hero" data-num="${num}"><div class="bg"></div><div class="wrap">
+      <div class="crumbs"><a href="#/">Home</a><span>/</span><a href="#/${g.slug}">${g.label}</a></div>
+      <h1><span><i>${it.t}</i></span></h1><p>${it.d}. ${it.body[0].split(". ")[0]}.</p></div></header>
+    <section class="page-body"><div class="wrap"><div class="prose rv rv-l">${it.body.map(p=>`<p>${p}</p>`).join("")}<h3>Why homeowners choose us</h3><p>Employed crews, written pricing, and a warranty we actually honor. Ask for references — we'll give you addresses.</p></div>
+      <aside class="side rv rv-r"><div class="card"><h3>Talk to a roofer</h3><p class="sub">Free estimate, written price the same day.</p><a class="btn btn-accent" href="#quote">Get a free quote ${arrow}</a><a class="btn btn-navy" style="margin-top:.6rem" href="${tel}">${CONFIG.phone}</a></div></aside></div></section>
+    <section class="hl-wrap"><div class="wrap"><div class="sec-head rv"><div class="kicker">${it.t}</div><h2>What's included</h2></div><div class="hl-grid">${it.hl.map(([t,d],i)=>`<div class="hl rv" style="transition-delay:${i*.1}s"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${hlIcons[i%3]}</svg><h3>${t}</h3><p>${d}</p></div>`).join("")}</div></div></section>
+    <section><div class="wrap"><div class="sec-head rv"><div class="kicker">More ${g.label.toLowerCase()}</div><h2>Explore</h2></div><div class="card-grid">${g.items.filter(x=>x!==it).slice(0,3).map((x,i)=>`<a class="pcard rv" style="transition-delay:${i*.1}s" href="#/${g.slug}/${x.s}"><div class="num">${String(g.items.indexOf(x)+1).padStart(2,"0")}</div><h3>${x.t}</h3><p>${x.d}</p><span class="go">${arrow}</span></a>`).join("")}</div></div></section>
+    ${quoteHTML(`Ready to talk ${it.t.toLowerCase()}?`)}`};
+  const landingHTML=g=>`<header class="page-hero" data-num="${g.label.slice(0,2).toUpperCase()}"><div class="bg"></div><div class="wrap"><div class="crumbs"><a href="#/">Home</a><span>/</span>${g.label}</div><h1><span><i>${g.label}</i></span></h1><p>${g.lede}</p></div></header>
+    <section><div class="wrap"><div class="card-grid">${g.items.map((it,i)=>`<a class="pcard rv" style="transition-delay:${(i%3)*.1}s" href="#/${g.slug}/${it.s}"><div class="num">${String(i+1).padStart(2,"0")}</div><h3>${it.t}</h3><p>${it.d}</p><span class="go">${arrow}</span></a>`).join("")}</div></div></section>${quoteHTML()}`;
+
+  let current="",busy=false;
+  const render=(hash,first)=>{
+    const h=(hash||"#/").replace(/^#\/?/,"");const parts=h.split("/").filter(Boolean);
+    const isHome=parts.length===0||parts[0]==="quote";
+    let html=null,label="",title=CONFIG.name;
+    if(!isHome){const g=findGroup(parts[0]);if(!g)return render("#/",first);
+      const it=parts[1]&&g.items.find(x=>x.s===parts[1]);
+      html=it?pageHTML(g,it):landingHTML(g);label=it?it.t:g.label;title=`${label} — ${CONFIG.name}`;}
+    const key=isHome?"home":parts.join("/");
+    const swap=()=>{home.classList.toggle("on",isHome);page.classList.toggle("on",!isHome);
+      if(!isHome){page.innerHTML=html;bindQuote(page);observe(page)}else{observe(home)}
+      document.title=title;items.forEach(it=>it.classList.toggle("cur",!isHome&&it.dataset.slug===parts[0]));
+      const target=parts[0]==="quote"?$("#home #quote"):null;
+      if(target)target.scrollIntoView({behavior:"smooth"});else scrollTo(0,0);
+      setTimeout(sweep,50);current=key;};
+    setMob(false);closeSearch();closeAll();
+    if(first||key===current){if(key!==current||first){swap()}else if(parts[0]==="quote"){$("#home #quote")?.scrollIntoView({behavior:"smooth"})}return}
+    if(busy)return;busy=true;wl.textContent=label||CONFIG.name;
+    wipe.className="wipe in";wipe.addEventListener("animationend",function a(){wipe.removeEventListener("animationend",a);swap();wipe.className="wipe out";wipe.addEventListener("animationend",function b(){wipe.removeEventListener("animationend",b);wipe.className="wipe";busy=false},{once:true})},{once:true});
+  };
+  const onHash=()=>{const h=location.hash;if(h.startsWith("#/")||h===""||h==="#"){render(h)}else{const el=document.querySelector(".view.on "+h)||document.querySelector(h);if(el){setMob(false);closeAll();el.scrollIntoView({behavior:"smooth"})}else{render("#/")}}};
+  addEventListener("hashchange",onHash);
+  render(location.hash.startsWith("#/")?location.hash:"#/",true);
+  if(location.hash&&!location.hash.startsWith("#/")){const el=document.querySelector(".view.on "+location.hash);el&&setTimeout(()=>el.scrollIntoView(),400)}
+
+  /* ---- Scroll effects ---- */
+  const art=$("#heroArt"),prog=$("#progress"),bg=$("#heroBg");
+  const onScroll=()=>{const y=scrollY;nav.classList.toggle("solid",y>40);if(y<900&&art)art.style.transform=`translateY(${y*.1}px)`;
+    const max=document.documentElement.scrollHeight-innerHeight;prog.style.width=(max>0?y/max*100:0)+"%"};
+  addEventListener("scroll",onScroll,{passive:true});onScroll();
+  if(hover)$("#top").addEventListener("pointermove",e=>{const r=e.currentTarget.getBoundingClientRect();bg.style.setProperty("--mx",((e.clientX-r.left)/r.width*100)+"%");bg.style.setProperty("--my",((e.clientY-r.top)/r.height*100)+"%")});
+  addEventListener("load",sweep);setTimeout(sweep,400);
+})();
+</script>
+</body>
+</html>
