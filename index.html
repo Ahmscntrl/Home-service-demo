@@ -13,82 +13,56 @@
 </head>
 <body>
 
-<!-- ===================== SCROLL PROGRESS ===================== -->
+<!-- Every piece of copy, nav group and sub-page is rendered from js/config.js. -->
+
 <div class="scroll-progress" aria-hidden="true"><span></span></div>
+<div class="wipe" id="wipe" aria-hidden="true"><span class="wipe__label" id="wipe-label"></span></div>
 
 <!-- ===================== ANNOUNCEMENT BAR ===================== -->
 <div class="announce">
   <div class="container announce__inner">
-    <p><span class="announce__tag">Limited time</span> Save up to $2,500 on a full roof replacement + 0% APR for 18 months.</p>
-    <a href="#quote" class="announce__link">Claim offer <span aria-hidden="true">›</span></a>
+    <p><span class="announce__tag" data-c="promo.tag">Limited time</span> <span data-c="promo.text">Save on a full roof replacement.</span></p>
+    <a href="#/quote" class="announce__link"><span data-c="promo.cta">Claim offer</span> <span aria-hidden="true">›</span></a>
   </div>
 </div>
 
 <!-- ===================== HEADER ===================== -->
 <header class="header" id="header">
   <div class="container header__inner">
-    <a href="#top" class="logo" aria-label="Northline Home Services home">
-      <svg class="logo__mark" viewBox="0 0 40 40" aria-hidden="true">
-        <path d="M4 22 20 6l16 16h-5v12H9V22Z" fill="currentColor"/>
-        <path d="M20 6 4 22h5l11-11 11 11h5L20 6Z" fill="#e3122b"/>
-      </svg>
-      <span class="logo__text">Northline<span>Home Services</span></span>
-    </a>
-
-    <nav class="nav" id="nav" aria-label="Primary">
-      <ul class="nav__list">
-        <li class="nav__item nav__item--has-menu">
-          <button class="nav__link" aria-expanded="false" aria-controls="services-menu">Services <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
-          <div class="megamenu" id="services-menu">
-            <a href="#top" class="megamenu__item is-active">
-              <span class="megamenu__icon">🏠</span>
-              <span><strong>Roofing</strong><small>Full replacement &amp; storm repair</small></span>
-            </a>
-            <a href="#services" class="megamenu__item">
-              <span class="megamenu__icon">🪟</span>
-              <span><strong>Windows</strong><small>Energy-efficient replacement</small></span>
-            </a>
-            <a href="#services" class="megamenu__item">
-              <span class="megamenu__icon">🧱</span>
-              <span><strong>Siding</strong><small>Fiber cement &amp; vinyl</small></span>
-            </a>
-            <a href="#services" class="megamenu__item">
-              <span class="megamenu__icon">🚪</span>
-              <span><strong>Doors</strong><small>Entry, patio &amp; storm</small></span>
-            </a>
-            <a href="#services" class="megamenu__item">
-              <span class="megamenu__icon">☀️</span>
-              <span><strong>Solar</strong><small>Roof-integrated systems</small></span>
-            </a>
-            <a href="#services" class="megamenu__item">
-              <span class="megamenu__icon">🌧️</span>
-              <span><strong>Gutters</strong><small>Seamless &amp; guards</small></span>
-            </a>
-          </div>
-        </li>
-        <li class="nav__item"><a class="nav__link" href="#why">Why Northline</a></li>
-        <li class="nav__item"><a class="nav__link" href="#process">Our Process</a></li>
-        <li class="nav__item"><a class="nav__link" href="#reviews">Reviews</a></li>
-        <li class="nav__item"><a class="nav__link" href="#financing">Financing</a></li>
-      </ul>
-    </nav>
-
-    <div class="header__actions">
-      <a href="tel:18005550199" class="header__phone">
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .6 3.6 1 1 0 0 1-.25 1Z" fill="currentColor"/></svg>
-        <span>1-800-555-0199</span>
+    <a href="#/" class="logo" aria-label="Home">
+        <svg class="logo__mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M4 22 20 6l16 16h-5v12H9V22Z" fill="currentColor"/><path d="M20 6 4 22h5l11-11 11 11h5L20 6Z" fill="var(--red)"/></svg>
+        <span class="logo__text"><span data-c="brand.name">Northline</span><span data-c="brand.tagline">Home Services</span></span>
       </a>
-      <a href="#quote" class="btn btn--primary btn--sm">Get a Free Quote</a>
-      <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="nav">
-        <span></span><span></span><span></span>
-      </button>
+    <nav class="nav" id="nav" aria-label="Primary">
+      <button class="nav__search" id="nav-search" type="button"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg> Search the site</button>
+      <ul class="nav__list" id="nav-list"></ul>
+      <a href="#/quote" class="btn btn--primary nav__cta">Get a Free Quote</a>
+    </nav>
+    <div class="header__actions">
+      <a href="tel:" class="header__phone" data-c="brand.phoneLink"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .6 3.6 1 1 0 0 1-.25 1Z" fill="currentColor"/></svg><span data-c="brand.phone">1-800-555-0199</span></a>
+      <button class="icon-btn" id="search-btn" aria-label="Search"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+      <a href="#/quote" class="btn btn--primary btn--sm header__cta">Get a Free Quote</a>
+      <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span></button>
     </div>
   </div>
 </header>
 
-<main id="top">
+<!-- ===================== SEARCH OVERLAY ===================== -->
+<div class="search" id="search" aria-hidden="true" role="dialog" aria-label="Site search">
+  <button class="icon-btn search__close" id="search-close" aria-label="Close search"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+  <div class="container search__inner">
+    <div class="search__box">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <input id="search-input" type="search" placeholder="What can we help with?" autocomplete="off" aria-label="Search">
+    </div>
+    <div id="search-top"><h4>Top searches</h4><div class="search__chips" id="search-chips"></div></div>
+    <div id="search-results-wrap" hidden><h4>Results</h4><div class="search__results" id="search-results"></div></div>
+  </div>
+</div>
 
-<!-- ===================== HERO ===================== -->
+<!-- ===================== HOME ===================== -->
+<main class="view is-active" id="home">
+
 <section class="hero" id="hero">
   <div class="hero__media" data-parallax="0.25">
     <svg class="hero__scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -224,151 +198,44 @@
     </svg>
     <div class="hero__vignette"></div>
   </div>
-
   <div class="container hero__content">
-    <p class="eyebrow reveal" data-reveal>Roof Replacement &amp; Repair</p>
-    <h1 class="hero__title reveal" data-reveal data-delay="100">
-      <span class="line"><span>A roof built to</span></span>
-      <span class="line"><span>outlast <em>the weather.</em></span></span>
-    </h1>
-    <p class="hero__sub reveal" data-reveal data-delay="200">
-      Storm-rated architectural shingles, a fully engineered ventilation system, and installers who treat your home like their own. Backed by a lifetime workmanship warranty.
-    </p>
+    <p class="eyebrow reveal" data-reveal data-c="hero.eyebrow">Roof Replacement &amp; Repair</p>
+    <h1 class="hero__title reveal" data-reveal data-delay="100" id="hero-title"></h1>
+    <p class="hero__sub reveal" data-reveal data-delay="200" data-c="hero.sub"></p>
     <div class="hero__cta reveal" data-reveal data-delay="300">
-      <a href="#quote" class="btn btn--primary btn--lg">Schedule a Free Consultation</a>
-      <a href="#system" class="btn btn--ghost btn--lg">
-        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 8l6 4-6 4Z" fill="currentColor"/></svg>
-        See how it's built
-      </a>
+      <a href="#/quote" class="btn btn--primary btn--lg" data-c="hero.primary">Schedule a Free Consultation</a>
+      <a href="#system" class="btn btn--ghost btn--lg"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 8l6 4-6 4Z" fill="currentColor"/></svg><span data-c="hero.secondary">See how it's built</span></a>
     </div>
-    <ul class="hero__trust reveal" data-reveal data-delay="400">
-      <li><span class="stars" aria-label="4.9 out of 5 stars">★★★★★</span> <strong>4.9</strong> from 18,400+ reviews</li>
-      <li><strong>Lifetime</strong> workmanship warranty</li>
-      <li><strong>$0 down</strong> financing available</li>
-    </ul>
+    <ul class="hero__trust reveal" data-reveal data-delay="400" id="hero-trust"></ul>
   </div>
-
   <a href="#stats" class="hero__scroll" aria-label="Scroll to content"><span></span></a>
 </section>
 
-<!-- ===================== STATS ===================== -->
-<section class="stats" id="stats">
-  <div class="container">
-    <div class="stats__grid">
-      <div class="stat reveal" data-reveal>
-        <div class="stat__num"><span data-counter="32">0</span><sup>+</sup></div>
-        <p class="stat__label">Years protecting homes</p>
-      </div>
-      <div class="stat reveal" data-reveal data-delay="80">
-        <div class="stat__num"><span data-counter="1.2" data-decimals="1">0</span>M</div>
-        <p class="stat__label">Homes served nationwide</p>
-      </div>
-      <div class="stat reveal" data-reveal data-delay="160">
-        <div class="stat__num"><span data-counter="98">0</span>%</div>
-        <p class="stat__label">Would recommend to a friend</p>
-      </div>
-      <div class="stat reveal" data-reveal data-delay="240">
-        <div class="stat__num"><span data-counter="50">0</span><sup>yr</sup></div>
-        <p class="stat__label">Manufacturer material warranty</p>
-      </div>
-    </div>
-  </div>
-</section>
+<section class="stats" id="stats"><div class="container"><div class="stats__grid" id="stats-grid"></div></div></section>
 
-<!-- ===================== MARQUEE ===================== -->
-<div class="marquee" aria-hidden="true">
-  <div class="marquee__track">
-    <span>Certified Master Installers</span><span class="dot"></span>
-    <span>Class 4 Impact Rated</span><span class="dot"></span>
-    <span>130 MPH Wind Warranty</span><span class="dot"></span>
-    <span>Energy Star Partner</span><span class="dot"></span>
-    <span>Fully Licensed &amp; Insured</span><span class="dot"></span>
-    <span>A+ Better Business Rating</span><span class="dot"></span>
-    <span>Certified Master Installers</span><span class="dot"></span>
-    <span>Class 4 Impact Rated</span><span class="dot"></span>
-    <span>130 MPH Wind Warranty</span><span class="dot"></span>
-    <span>Energy Star Partner</span><span class="dot"></span>
-    <span>Fully Licensed &amp; Insured</span><span class="dot"></span>
-    <span>A+ Better Business Rating</span><span class="dot"></span>
-  </div>
-</div>
+<div class="marquee" aria-hidden="true"><div class="marquee__track" id="marquee"></div></div>
 
-<!-- ===================== WHY / FEATURES ===================== -->
 <section class="section why" id="why">
   <div class="container">
     <div class="section__head reveal" data-reveal>
-      <p class="eyebrow">Why homeowners choose Northline</p>
-      <h2>Engineered for the <em>worst day</em> of the year.</h2>
-      <p class="lede">Most roofs fail at the details: the valleys, the vents, the flashing nobody sees. We over-build every one of them, so you never think about your roof again.</p>
+      <p class="eyebrow" data-c="why.eyebrow"></p>
+      <h2 data-c="why.head" data-html></h2>
+      <p class="lede" data-c="why.lede"></p>
     </div>
-
-    <div class="features">
-      <article class="feature reveal" data-reveal>
-        <div class="feature__icon">
-          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 26 24 10l16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M12 24v14h24V24" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M18 32h12" stroke="currentColor" stroke-width="2.5"/></svg>
-        </div>
-        <h3>Class 4 impact-rated shingles</h3>
-        <p>The highest hail and impact rating available, with a 130 mph wind warranty and algae-resistant granules that keep their color for decades.</p>
-      </article>
-      <article class="feature reveal" data-reveal data-delay="80">
-        <div class="feature__icon">
-          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6c8 8 12 14 12 20a12 12 0 0 1-24 0c0-6 4-12 12-20Z" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M24 22c3 3 5 5 5 8a5 5 0 0 1-10 0c0-3 2-5 5-8Z" fill="currentColor"/></svg>
-        </div>
-        <h3>Ice &amp; water barrier</h3>
-        <p>Self-sealing membrane in every valley, eave, and penetration, so wind-driven rain and ice dams never reach your decking.</p>
-      </article>
-      <article class="feature reveal" data-reveal data-delay="160">
-        <div class="feature__icon">
-          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 30h32M8 22h32M8 14h32" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M16 38h16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-        </div>
-        <h3>Balanced attic ventilation</h3>
-        <p>Ridge and intake vents sized to your exact attic volume, lowering summer cooling bills and stopping moisture before it rots the wood.</p>
-      </article>
-      <article class="feature reveal" data-reveal data-delay="240">
-        <div class="feature__icon">
-          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6 8 12v12c0 9 7 15 16 18 9-3 16-9 16-18V12L24 6Z" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M17 24l5 5 9-10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <h3>Lifetime workmanship warranty</h3>
-        <p>If anything we installed ever leaks, we fix it. No pro-rating, no fine print, and it transfers to the next owner of your home.</p>
-      </article>
-      <article class="feature reveal" data-reveal data-delay="320">
-        <div class="feature__icon">
-          <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="18" r="8" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M8 42c2-8 8-12 16-12s14 4 16 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-        </div>
-        <h3>Employee installers, not subs</h3>
-        <p>Every crew is background-checked, factory-certified, and employed by us. One project manager owns your job from tear-off to final walk-through.</p>
-      </article>
-      <article class="feature reveal" data-reveal data-delay="400">
-        <div class="feature__icon">
-          <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="10" width="32" height="28" rx="3" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M8 18h32M16 6v8M32 6v8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M16 28l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <h3>Done in a day</h3>
-        <p>Most homes are torn off, dried in, and fully installed in a single day, with magnetic nail sweeps and a spotless yard before we leave.</p>
-      </article>
-    </div>
+    <div class="features" id="features"></div>
   </div>
 </section>
 
-<!-- ===================== ROOFING SYSTEM EXPLORER ===================== -->
 <section class="section system" id="system">
   <div class="container system__grid">
     <div class="system__copy">
       <div class="section__head section__head--left reveal" data-reveal>
-        <p class="eyebrow">The Northline Roofing System</p>
-        <h2>Seven layers. <em>Zero</em> weak points.</h2>
-        <p class="lede">A roof is only as strong as what's under the shingles. Tap a layer to see what it does and why we never skip it.</p>
+        <p class="eyebrow" data-c="system.eyebrow"></p>
+        <h2 data-c="system.head" data-html></h2>
+        <p class="lede" data-c="system.lede"></p>
       </div>
-      <ol class="layers reveal" data-reveal data-delay="100" id="layer-list">
-        <li class="layer is-active" data-layer="7"><span class="layer__num">01</span><span><strong>Ridge vent</strong><small>Exhausts hot, humid attic air along the peak.</small></span></li>
-        <li class="layer" data-layer="6"><span class="layer__num">02</span><span><strong>Architectural shingles</strong><small>Class 4 impact, 130 mph wind, 50-year material warranty.</small></span></li>
-        <li class="layer" data-layer="5"><span class="layer__num">03</span><span><strong>Starter strip</strong><small>Factory-sealed edge locks the first course against uplift.</small></span></li>
-        <li class="layer" data-layer="4"><span class="layer__num">04</span><span><strong>Synthetic underlayment</strong><small>Tear-resistant, breathable secondary water barrier.</small></span></li>
-        <li class="layer" data-layer="3"><span class="layer__num">05</span><span><strong>Ice &amp; water shield</strong><small>Self-adhering membrane at eaves, valleys and penetrations.</small></span></li>
-        <li class="layer" data-layer="2"><span class="layer__num">06</span><span><strong>Drip edge &amp; flashing</strong><small>Heavy-gauge metal that steers water into the gutters.</small></span></li>
-        <li class="layer" data-layer="1"><span class="layer__num">07</span><span><strong>Inspected decking</strong><small>Every sheet checked and replaced if soft, at no surprise cost.</small></span></li>
-      </ol>
+      <ol class="layers reveal" data-reveal data-delay="100" id="layer-list"></ol>
     </div>
-
     <div class="system__visual reveal" data-reveal data-delay="150">
       <svg class="exploded" viewBox="0 0 520 640" aria-hidden="true" id="exploded">
         <defs>
@@ -394,20 +261,18 @@
         <!-- callout -->
         <g class="callout" id="callout"><circle cx="0" cy="0" r="7" fill="#e3122b"/><circle cx="0" cy="0" r="14" fill="none" stroke="#e3122b" stroke-width="2" class="pulse"/></g>
       </svg>
-      <div class="system__label" id="system-label"><strong>Ridge vent</strong><span>Layer 01</span></div>
+      <div class="system__label" id="system-label"><strong></strong><span></span></div>
     </div>
   </div>
 </section>
 
-<!-- ===================== SHINGLE COLORS ===================== -->
 <section class="section colors" id="colors">
   <div class="container">
     <div class="section__head reveal" data-reveal>
-      <p class="eyebrow">Design your roof</p>
-      <h2>Pick a color. <em>See it</em> on your home.</h2>
-      <p class="lede">Twelve designer shades, all with the same Class 4 protection. Choose one below and watch the house update in real time.</p>
+      <p class="eyebrow" data-c="colors.eyebrow"></p>
+      <h2 data-c="colors.head" data-html></h2>
+      <p class="lede" data-c="colors.lede"></p>
     </div>
-
     <div class="colors__grid">
       <div class="colors__preview reveal" data-reveal>
         <svg viewBox="0 0 800 460" class="house-preview" aria-hidden="true" id="house-preview">
@@ -454,81 +319,34 @@
           <ellipse cx="140" cy="378" rx="40" ry="22" fill="#3f7a3a"/><ellipse cx="200" cy="382" rx="30" ry="16" fill="#4a8c45"/>
           <ellipse cx="480" cy="380" rx="36" ry="20" fill="#3f7a3a"/>
         </svg>
-        <div class="colors__badge"><span id="color-name">Charcoal Slate</span><small>Most popular</small></div>
+        <div class="colors__badge"><span id="color-name"></span><small id="color-tag"></small></div>
       </div>
-
       <div class="colors__picker reveal" data-reveal data-delay="100">
-        <div class="swatches" id="swatches" role="listbox" aria-label="Shingle colors">
-          <button class="swatch is-active" role="option" aria-selected="true" data-name="Charcoal Slate" data-base="#3a3f4a" data-line="#14161b" data-hi="#4a505c" style="--c:#3a3f4a"><span></span>Charcoal Slate</button>
-          <button class="swatch" role="option" data-name="Onyx Black" data-base="#1d1f24" data-line="#0a0b0d" data-hi="#2b2e35" style="--c:#1d1f24"><span></span>Onyx Black</button>
-          <button class="swatch" role="option" data-name="Pewter Gray" data-base="#6f747c" data-line="#3a3e45" data-hi="#868b93" style="--c:#6f747c"><span></span>Pewter Gray</button>
-          <button class="swatch" role="option" data-name="Weathered Wood" data-base="#6b5a48" data-line="#3a3026" data-hi="#7f6d59" style="--c:#6b5a48"><span></span>Weathered Wood</button>
-          <button class="swatch" role="option" data-name="Driftwood" data-base="#8c8070" data-line="#4e463c" data-hi="#a2968a" style="--c:#8c8070"><span></span>Driftwood</button>
-          <button class="swatch" role="option" data-name="Hickory" data-base="#5c4535" data-line="#2f2219" data-hi="#6e5544" style="--c:#5c4535"><span></span>Hickory</button>
-          <button class="swatch" role="option" data-name="Mission Brown" data-base="#4a3a2f" data-line="#241b15" data-hi="#5a4839" style="--c:#4a3a2f"><span></span>Mission Brown</button>
-          <button class="swatch" role="option" data-name="Harbor Blue" data-base="#3c4f66" data-line="#1c2633" data-hi="#4d6079" style="--c:#3c4f66"><span></span>Harbor Blue</button>
-          <button class="swatch" role="option" data-name="Hunter Green" data-base="#3b4e3f" data-line="#1c261e" data-hi="#4a5f4e" style="--c:#3b4e3f"><span></span>Hunter Green</button>
-          <button class="swatch" role="option" data-name="Terra Cotta" data-base="#9a5a3c" data-line="#55301e" data-hi="#ad6c4d" style="--c:#9a5a3c"><span></span>Terra Cotta</button>
-          <button class="swatch" role="option" data-name="Slate Blue" data-base="#59677a" data-line="#2c343f" data-hi="#6b7a8e" style="--c:#59677a"><span></span>Slate Blue</button>
-          <button class="swatch" role="option" data-name="Birchwood" data-base="#a89d8a" data-line="#635b4d" data-hi="#bcb2a0" style="--c:#a89d8a"><span></span>Birchwood</button>
-        </div>
-        <div class="colors__specs">
-          <div><strong>Class 4</strong><span>Impact rating</span></div>
-          <div><strong>130 mph</strong><span>Wind warranty</span></div>
-          <div><strong>50 yr</strong><span>Material warranty</span></div>
-        </div>
-        <a href="#quote" class="btn btn--primary">Get a quote in this color</a>
+        <div class="swatches" id="swatches" role="listbox" aria-label="Shingle colors"></div>
+        <div class="colors__specs" id="color-specs"></div>
+        <a href="#/quote" class="btn btn--primary" data-c="colors.cta">Get a quote in this color</a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===================== PROCESS ===================== -->
 <section class="section process" id="process">
   <div class="container">
     <div class="section__head reveal" data-reveal>
-      <p class="eyebrow">How it works</p>
-      <h2>From first call to <em>final sweep</em> in four steps.</h2>
+      <p class="eyebrow" data-c="process.eyebrow"></p>
+      <h2 data-c="process.head" data-html></h2>
     </div>
-    <div class="steps" id="steps">
-      <div class="steps__line" aria-hidden="true"><span></span></div>
-      <article class="step reveal" data-reveal>
-        <div class="step__num">1</div>
-        <h3>Free in-home consultation</h3>
-        <p>A project specialist inspects your roof, attic and gutters with a drone and infrared scan, then walks you through exactly what we find.</p>
-        <span class="step__time">60–90 min</span>
-      </article>
-      <article class="step reveal" data-reveal data-delay="100">
-        <div class="step__num">2</div>
-        <h3>Design &amp; guaranteed price</h3>
-        <p>Choose your shingle color and options. Your price is locked in writing, with no change orders unless you change the scope.</p>
-        <span class="step__time">Same visit</span>
-      </article>
-      <article class="step reveal" data-reveal data-delay="200">
-        <div class="step__num">3</div>
-        <h3>One-day installation</h3>
-        <p>Our employee crew protects your landscaping, tears off to the deck, replaces bad wood, and installs the full seven-layer system.</p>
-        <span class="step__time">1 day</span>
-      </article>
-      <article class="step reveal" data-reveal data-delay="300">
-        <div class="step__num">4</div>
-        <h3>Inspection &amp; lifetime care</h3>
-        <p>A project manager walks the roof with you, registers your warranties, and stays your single point of contact for life.</p>
-        <span class="step__time">Forever</span>
-      </article>
-    </div>
+    <div class="steps" id="steps"><div class="steps__line" aria-hidden="true"><span></span></div></div>
   </div>
 </section>
 
-<!-- ===================== BEFORE / AFTER ===================== -->
 <section class="section ba" id="before-after">
   <div class="container">
     <div class="section__head reveal" data-reveal>
-      <p class="eyebrow">Real transformations</p>
-      <h2>Drag to see the <em>difference.</em></h2>
+      <p class="eyebrow" data-c="beforeAfter.eyebrow"></p>
+      <h2 data-c="beforeAfter.head" data-html></h2>
     </div>
     <div class="compare reveal" data-reveal id="compare" style="--pos:50%">
-      <!-- AFTER (bottom layer) -->
       <div class="compare__after" aria-hidden="true">
         <svg viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice">
           <defs>
@@ -551,7 +369,6 @@
         </svg>
         <span class="compare__tag compare__tag--after">After</span>
       </div>
-      <!-- BEFORE (clipped top layer) -->
       <div class="compare__before" aria-hidden="true">
         <svg viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice">
           <defs>
@@ -576,321 +393,122 @@
         </svg>
         <span class="compare__tag compare__tag--before">Before</span>
       </div>
-      <div class="compare__handle" aria-hidden="true">
-        <span class="compare__grip">
-          <svg width="22" height="22" viewBox="0 0 24 24"><path d="M9 6 4 12l5 6M15 6l5 6-5 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </span>
-      </div>
+      <div class="compare__handle" aria-hidden="true"><span class="compare__grip"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M9 6 4 12l5 6M15 6l5 6-5 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
       <input type="range" class="compare__range" id="compare-range" min="0" max="100" value="50" aria-label="Compare before and after">
     </div>
-    <p class="ba__caption reveal" data-reveal>Cedar Grove, MD · 28-year-old three-tab roof replaced with Charcoal Slate architectural shingles, new ridge vent, and seamless gutters. Completed in one day.</p>
+    <p class="ba__caption reveal" data-reveal data-c="beforeAfter.caption"></p>
   </div>
 </section>
 
-<!-- ===================== REVIEWS ===================== -->
 <section class="section reviews" id="reviews">
   <div class="container">
     <div class="section__head reveal" data-reveal>
-      <p class="eyebrow">18,400+ five-star reviews</p>
-      <h2>Homeowners <em>say it best.</em></h2>
+      <p class="eyebrow" data-c="reviews.eyebrow"></p>
+      <h2 data-c="reviews.head" data-html></h2>
     </div>
     <div class="carousel reveal" data-reveal id="carousel">
-      <div class="carousel__track" id="carousel-track">
-        <blockquote class="review">
-          <div class="review__stars">★★★★★</div>
-          <p>“Crew showed up at 7, roof was done and yard spotless by 4. The project manager sent me drone photos of every stage. Never seen a contractor this organized.”</p>
-          <footer><span class="review__avatar" style="--a:#e3122b">DM</span><div><strong>Dana M.</strong><small>Roof replacement · Alexandria, VA</small></div></footer>
-        </blockquote>
-        <blockquote class="review">
-          <div class="review__stars">★★★★★</div>
-          <p>“Two other companies quoted us without ever going in the attic. Northline found rotted decking the others missed and the price they wrote down was the price we paid.”</p>
-          <footer><span class="review__avatar" style="--a:#2f6bff">JR</span><div><strong>James &amp; Priya R.</strong><small>Roof &amp; gutters · Cherry Hill, NJ</small></div></footer>
-        </blockquote>
-        <blockquote class="review">
-          <div class="review__stars">★★★★★</div>
-          <p>“Hail storm hit six months after install. Not a single mark. Our neighbors with the same storm are all getting new roofs right now.”</p>
-          <footer><span class="review__avatar" style="--a:#1a9e5c">TK</span><div><strong>Tom K.</strong><small>Roof replacement · Naperville, IL</small></div></footer>
-        </blockquote>
-        <blockquote class="review">
-          <div class="review__stars">★★★★★</div>
-          <p>“The color visualizer was what sold my wife. Weathered Wood looks exactly like it did on the screen. Financing approval took about four minutes.”</p>
-          <footer><span class="review__avatar" style="--a:#c26b1a">AL</span><div><strong>Andre L.</strong><small>Roof &amp; solar · Tampa, FL</small></div></footer>
-        </blockquote>
-        <blockquote class="review">
-          <div class="review__stars">★★★★★</div>
-          <p>“Our attic went from 130° to 95° in August after they fixed the ventilation. Didn't know a roof could change our electric bill.”</p>
-          <footer><span class="review__avatar" style="--a:#7a3fe0">SW</span><div><strong>Sarah W.</strong><small>Roof replacement · Phoenix, AZ</small></div></footer>
-        </blockquote>
-      </div>
+      <div class="carousel__track" id="carousel-track"></div>
       <div class="carousel__controls">
         <button class="carousel__btn" id="prev" aria-label="Previous review"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <div class="carousel__dots" id="dots"></div>
         <button class="carousel__btn" id="next" aria-label="Next review"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
     </div>
-    <div class="ratings reveal" data-reveal>
-      <div class="rating"><strong>4.9</strong><span>Google</span></div>
-      <div class="rating"><strong>A+</strong><span>BBB Rating</span></div>
-      <div class="rating"><strong>4.8</strong><span>Trustpilot</span></div>
-      <div class="rating"><strong>#1</strong><span>Qualified Remodeler Top 500</span></div>
+    <div class="ratings reveal" data-reveal id="ratings"></div>
+  </div>
+</section>
+
+<section class="section tracker" id="tracker">
+  <div class="container tracker__grid">
+    <div class="tracker__copy reveal" data-reveal>
+      <p class="eyebrow" data-c="tracker.eyebrow"></p>
+      <h2 data-c="tracker.head" data-html></h2>
+      <p class="lede" data-c="tracker.lede"></p>
+      <ul class="checklist checklist--light" id="tracker-list"></ul>
+      <a href="#/support/track-your-project" class="btn btn--primary">See how it works</a>
+    </div>
+    <div class="tracker__visual reveal" data-reveal data-delay="120">
+      <div class="phone" id="phone">
+        <div class="phone__notch"></div>
+        <div class="phone__head"><span>Your project</span><small id="phone-pct"></small></div>
+        <div id="phone-steps"></div>
+        <div class="phone__bar"><i id="phone-bar"></i></div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ===================== FINANCING ===================== -->
 <section class="section financing" id="financing">
   <div class="container financing__grid">
     <div class="financing__copy reveal" data-reveal>
-      <p class="eyebrow">Financing that fits</p>
-      <h2>Protect your home for <em>less per month</em> than your streaming bills.</h2>
-      <p class="lede">$0 down, 0% APR promotional plans, and approvals in minutes with no impact to your credit score to check. Every plan has no prepayment penalty.</p>
-      <ul class="checklist">
-        <li>0% APR for 18 months on approved credit</li>
-        <li>Fixed-rate plans up to 15 years</li>
-        <li>Instant soft-pull pre-qualification</li>
-        <li>Insurance claim specialists on staff</li>
-      </ul>
-      <a href="#quote" class="btn btn--primary">See your monthly payment</a>
+      <p class="eyebrow" data-c="financing.eyebrow"></p>
+      <h2 data-c="financing.head" data-html></h2>
+      <p class="lede" data-c="financing.lede"></p>
+      <ul class="checklist" id="financing-list"></ul>
+      <a href="#/quote" class="btn btn--primary">See your monthly payment</a>
     </div>
     <div class="calc reveal" data-reveal data-delay="120">
       <h3>Payment estimator</h3>
-      <label class="calc__row">
-        <span>Project cost <output id="calc-cost">$18,500</output></span>
-        <input type="range" id="calc-amount" min="8000" max="45000" step="500" value="18500">
-      </label>
-      <label class="calc__row">
-        <span>Term <output id="calc-term-out">10 years</output></span>
-        <input type="range" id="calc-term" min="2" max="15" step="1" value="10">
-      </label>
+      <label class="calc__row"><span>Project cost <output id="calc-cost"></output></span><input type="range" id="calc-amount" min="8000" max="45000" step="500"></label>
+      <label class="calc__row"><span>Term <output id="calc-term-out"></output></span><input type="range" id="calc-term" min="2" max="15" step="1"></label>
       <div class="calc__result">
         <small>Estimated monthly payment</small>
         <div class="calc__amount">$<span id="calc-monthly">0</span><span class="calc__per">/mo</span></div>
-        <p>Based on a 7.99% fixed APR. For illustration only, not an offer of credit.</p>
+        <p id="calc-fine"></p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===================== OTHER SERVICES ===================== -->
 <section class="section services" id="services">
   <div class="container">
     <div class="section__head reveal" data-reveal>
-      <p class="eyebrow">Whole-home exterior</p>
-      <h2>One crew. <em>Every</em> exterior project.</h2>
+      <p class="eyebrow" data-c="services.eyebrow"></p>
+      <h2 data-c="services.head" data-html></h2>
     </div>
-    <div class="services__grid">
-      <a href="#quote" class="service reveal" data-reveal style="--tint:#e3122b">
-        <div class="service__art"><svg viewBox="0 0 120 120" aria-hidden="true"><path d="M20 62 60 24l40 38" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M30 60v36h60V60" fill="none" stroke="currentColor" stroke-width="5"/></svg></div>
-        <h3>Roofing</h3><p>Replacement, storm repair, skylights.</p><span class="service__arrow">→</span>
-      </a>
-      <a href="#quote" class="service reveal" data-reveal data-delay="60" style="--tint:#2f6bff">
-        <div class="service__art"><svg viewBox="0 0 120 120" aria-hidden="true"><rect x="24" y="20" width="72" height="80" rx="4" fill="none" stroke="currentColor" stroke-width="5"/><path d="M60 20v80M24 60h72" stroke="currentColor" stroke-width="5"/></svg></div>
-        <h3>Windows</h3><p>Triple-pane, custom-fit, lifetime glass.</p><span class="service__arrow">→</span>
-      </a>
-      <a href="#quote" class="service reveal" data-reveal data-delay="120" style="--tint:#c26b1a">
-        <div class="service__art"><svg viewBox="0 0 120 120" aria-hidden="true"><path d="M20 30h80M20 50h80M20 70h80M20 90h80" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M40 30v20M70 50v20M50 70v20" stroke="currentColor" stroke-width="5"/></svg></div>
-        <h3>Siding</h3><p>Fiber cement and insulated vinyl.</p><span class="service__arrow">→</span>
-      </a>
-      <a href="#quote" class="service reveal" data-reveal data-delay="180" style="--tint:#1a9e5c">
-        <div class="service__art"><svg viewBox="0 0 120 120" aria-hidden="true"><rect x="34" y="18" width="52" height="84" rx="4" fill="none" stroke="currentColor" stroke-width="5"/><circle cx="74" cy="62" r="4" fill="currentColor"/></svg></div>
-        <h3>Doors</h3><p>Entry, patio and storm doors.</p><span class="service__arrow">→</span>
-      </a>
-      <a href="#quote" class="service reveal" data-reveal data-delay="240" style="--tint:#f2b01e">
-        <div class="service__art"><svg viewBox="0 0 120 120" aria-hidden="true"><rect x="20" y="36" width="80" height="48" rx="3" transform="skewX(-12)" fill="none" stroke="currentColor" stroke-width="5"/><path d="M40 36v48M60 36v48M80 36v48M20 60h80" transform="skewX(-12)" stroke="currentColor" stroke-width="3"/></svg></div>
-        <h3>Solar</h3><p>Roof-integrated, one warranty.</p><span class="service__arrow">→</span>
-      </a>
-      <a href="#quote" class="service reveal" data-reveal data-delay="300" style="--tint:#7a3fe0">
-        <div class="service__art"><svg viewBox="0 0 120 120" aria-hidden="true"><path d="M18 40h84v14a10 10 0 0 1-10 10H28a10 10 0 0 1-10-10Z" fill="none" stroke="currentColor" stroke-width="5"/><path d="M84 64v36" stroke="currentColor" stroke-width="5"/></svg></div>
-        <h3>Gutters</h3><p>Seamless aluminum with guards.</p><span class="service__arrow">→</span>
-      </a>
-    </div>
+    <div class="services__grid" id="services-grid"></div>
   </div>
 </section>
 
-<!-- ===================== FAQ ===================== -->
 <section class="section faq" id="faq">
   <div class="container faq__grid">
     <div class="section__head section__head--left reveal" data-reveal>
-      <p class="eyebrow">Questions, answered</p>
-      <h2>Everything you want to know <em>before</em> we knock.</h2>
-      <p class="lede">Still curious? Call <a href="tel:18005550199">1-800-555-0199</a> and a real person will pick up.</p>
+      <p class="eyebrow" data-c="faq.eyebrow"></p>
+      <h2 data-c="faq.head" data-html></h2>
+      <p class="lede"><span data-c="faq.lede"></span> <a href="tel:" data-c="brand.phoneLink"><span data-c="brand.phone"></span></a></p>
     </div>
-    <div class="accordion reveal" data-reveal data-delay="100" id="accordion">
-      <details class="acc" open>
-        <summary>How do I know if I need a new roof or just a repair?<span class="acc__icon"></span></summary>
-        <div class="acc__body"><p>If your roof is over 18 years old, has curling or missing shingles, granules in the gutters, or any interior staining, a replacement is usually the better investment. Our free inspection includes a drone survey and infrared moisture scan, and we'll tell you honestly if a repair will hold.</p></div>
-      </details>
-      <details class="acc">
-        <summary>How long does a roof replacement take?<span class="acc__icon"></span></summary>
-        <div class="acc__body"><p>Most single-family homes are completed in one day. Larger or steeper roofs may take two. You can stay home during the work, though it does get loud.</p></div>
-      </details>
-      <details class="acc">
-        <summary>What does the lifetime workmanship warranty cover?<span class="acc__icon"></span></summary>
-        <div class="acc__body"><p>Any leak or failure caused by installation, for as long as you own the home, with no pro-rating. It's fully transferable to the next owner, which is a strong selling point when you list.</p></div>
-      </details>
-      <details class="acc">
-        <summary>Do you work with insurance claims?<span class="acc__icon"></span></summary>
-        <div class="acc__body"><p>Yes. Our claims specialists document storm damage, meet your adjuster on-site, and handle the supplement process so you pay only your deductible where a claim is approved.</p></div>
-      </details>
-      <details class="acc">
-        <summary>What happens if you find rotted wood?<span class="acc__icon"></span></summary>
-        <div class="acc__body"><p>We inspect every sheet of decking after tear-off and replace anything soft. Your quote includes a decking allowance, and we photograph anything beyond it before we touch it so there are never surprises on the invoice.</p></div>
-      </details>
-      <details class="acc">
-        <summary>Is financing really 0% APR?<span class="acc__icon"></span></summary>
-        <div class="acc__body"><p>Yes, on approved credit for the promotional term. There is no prepayment penalty, and pre-qualification is a soft pull that does not affect your credit score.</p></div>
-      </details>
+    <div class="reveal" data-reveal data-delay="100">
+      <div class="tabs" id="faq-tabs" role="tablist"></div>
+      <div id="faq-groups"></div>
     </div>
   </div>
 </section>
 
-<!-- ===================== QUOTE FORM ===================== -->
-<section class="section quote" id="quote">
-  <div class="container quote__grid">
-    <div class="quote__copy reveal" data-reveal>
-      <p class="eyebrow">Free consultation</p>
-      <h2>Let's take a look at <em>your roof.</em></h2>
-      <p class="lede">Tell us a little about your home and a project specialist will call within 15 minutes during business hours to set up your free inspection.</p>
-      <ul class="checklist checklist--light">
-        <li>No-pressure, no-obligation visit</li>
-        <li>Drone &amp; infrared inspection included</li>
-        <li>Written, guaranteed price on the spot</li>
-      </ul>
-      <div class="quote__phone">
-        <small>Prefer to talk?</small>
-        <a href="tel:18005550199">1-800-555-0199</a>
-      </div>
-    </div>
+<div id="home-quote"></div>
 
-    <form class="form reveal" data-reveal data-delay="120" id="quote-form" novalidate>
-      <div class="form__steps" aria-hidden="true"><span class="is-active"></span><span></span><span></span></div>
-
-      <fieldset class="form__step is-active" data-step="1">
-        <legend>What are you interested in?</legend>
-        <div class="chips">
-          <label class="chip"><input type="checkbox" name="service" value="Roofing" checked><span>Roofing</span></label>
-          <label class="chip"><input type="checkbox" name="service" value="Windows"><span>Windows</span></label>
-          <label class="chip"><input type="checkbox" name="service" value="Siding"><span>Siding</span></label>
-          <label class="chip"><input type="checkbox" name="service" value="Doors"><span>Doors</span></label>
-          <label class="chip"><input type="checkbox" name="service" value="Solar"><span>Solar</span></label>
-          <label class="chip"><input type="checkbox" name="service" value="Gutters"><span>Gutters</span></label>
-        </div>
-        <label class="field">
-          <span>ZIP code</span>
-          <input type="text" name="zip" inputmode="numeric" pattern="\d{5}" maxlength="5" placeholder="20001" required>
-          <em class="field__err">Enter a 5-digit ZIP code</em>
-        </label>
-        <button type="button" class="btn btn--primary btn--block" data-next>Continue</button>
-      </fieldset>
-
-      <fieldset class="form__step" data-step="2">
-        <legend>Tell us about your home</legend>
-        <div class="field-row">
-          <label class="field">
-            <span>Home type</span>
-            <select name="home">
-              <option>Single family</option><option>Townhome</option><option>Multi-family</option><option>Condo</option>
-            </select>
-          </label>
-          <label class="field">
-            <span>Roof age</span>
-            <select name="age">
-              <option>Not sure</option><option>Under 10 years</option><option>10–20 years</option><option>20+ years</option>
-            </select>
-          </label>
-        </div>
-        <label class="field">
-          <span>Anything we should know? <small>(optional)</small></span>
-          <textarea name="notes" rows="3" placeholder="Leak near the chimney, missing shingles after last storm…"></textarea>
-        </label>
-        <div class="form__nav">
-          <button type="button" class="btn btn--ghost" data-prev>Back</button>
-          <button type="button" class="btn btn--primary" data-next>Continue</button>
-        </div>
-      </fieldset>
-
-      <fieldset class="form__step" data-step="3">
-        <legend>Where should we send your quote?</legend>
-        <div class="field-row">
-          <label class="field"><span>First name</span><input type="text" name="first" required autocomplete="given-name"><em class="field__err">Required</em></label>
-          <label class="field"><span>Last name</span><input type="text" name="last" required autocomplete="family-name"><em class="field__err">Required</em></label>
-        </div>
-        <label class="field"><span>Email</span><input type="email" name="email" required autocomplete="email"><em class="field__err">Enter a valid email</em></label>
-        <label class="field"><span>Phone</span><input type="tel" name="phone" required autocomplete="tel" placeholder="(555) 555-0199"><em class="field__err">Enter a valid phone number</em></label>
-        <div class="form__nav">
-          <button type="button" class="btn btn--ghost" data-prev>Back</button>
-          <button type="submit" class="btn btn--primary">Get My Free Quote</button>
-        </div>
-        <p class="form__fine">By submitting, you agree to be contacted by Northline about your project. No spam, ever. This is a demo form; nothing is sent.</p>
-      </fieldset>
-
-      <div class="form__success" id="form-success" hidden>
-        <div class="form__check">
-          <svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24" fill="none" stroke="currentColor" stroke-width="3"/><path d="M15 27l8 8 14-16" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <h3>You're all set, <span id="success-name">friend</span>.</h3>
-        <p>A project specialist will call you shortly to schedule your free inspection. Keep an eye on your inbox for a confirmation.</p>
-        <button type="button" class="btn btn--ghost" id="form-reset">Submit another request</button>
-      </div>
-    </form>
-  </div>
-</section>
-
+<div class="awards"><div class="container awards__inner" id="awards"></div></div>
 </main>
+
+<!-- ===================== SUB-PAGES (rendered by router) ===================== -->
+<main class="view" id="page"></main>
 
 <!-- ===================== FOOTER ===================== -->
 <footer class="footer">
-  <div class="container footer__grid">
-    <div class="footer__brand">
-      <a href="#top" class="logo logo--light" aria-label="Northline Home Services home">
-        <svg class="logo__mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M4 22 20 6l16 16h-5v12H9V22Z" fill="currentColor"/><path d="M20 6 4 22h5l11-11 11 11h5L20 6Z" fill="#e3122b"/></svg>
-        <span class="logo__text">Northline<span>Home Services</span></span>
-      </a>
-      <p>Roofing, windows, siding, doors, solar and gutters for homeowners who want it done once, done right.</p>
-      <div class="footer__social">
-        <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M14 8h3V4h-3a4 4 0 0 0-4 4v2H7v4h3v6h4v-6h3l1-4h-4V8Z" fill="currentColor"/></svg></a>
-        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"/></svg></a>
-        <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 9l5 3-5 3Z" fill="currentColor"/></svg></a>
-        <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M6 9v11M6 4v1M10 20v-6a3 3 0 0 1 6 0v6M10 9v11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></a>
-      </div>
-    </div>
-    <div>
-      <h4>Services</h4>
-      <ul><li><a href="#top">Roofing</a></li><li><a href="#services">Windows</a></li><li><a href="#services">Siding</a></li><li><a href="#services">Doors</a></li><li><a href="#services">Solar</a></li><li><a href="#services">Gutters</a></li></ul>
-    </div>
-    <div>
-      <h4>Company</h4>
-      <ul><li><a href="#why">Why Northline</a></li><li><a href="#process">Our Process</a></li><li><a href="#reviews">Reviews</a></li><li><a href="#">Careers</a></li><li><a href="#">Press</a></li><li><a href="#">Community</a></li></ul>
-    </div>
-    <div>
-      <h4>Support</h4>
-      <ul><li><a href="#financing">Financing</a></li><li><a href="#faq">FAQ</a></li><li><a href="#">Warranty claims</a></li><li><a href="#">Service areas</a></li><li><a href="#quote">Contact</a></li></ul>
-    </div>
-    <div class="footer__contact">
-      <h4>Talk to us</h4>
-      <a class="footer__phone" href="tel:18005550199">1-800-555-0199</a>
-      <p>Mon–Sat · 7am–9pm ET<br>Sun · 9am–6pm ET</p>
-      <p>1200 Ridgeline Dr, Suite 400<br>Chester, PA 19013</p>
-    </div>
-  </div>
+  <div class="container footer__grid" id="footer-grid"></div>
   <div class="container footer__bottom">
-    <p>© <span id="year"></span> Northline Home Services. Demo website for illustration purposes. Licensed &amp; insured in all service states. PA HIC #000000.</p>
-    <ul><li><a href="#">Privacy</a></li><li><a href="#">Terms</a></li><li><a href="#">Accessibility</a></li><li><a href="#">Do not sell my info</a></li></ul>
+    <p>© <span id="year"></span> <span data-c="brand.legalName"></span>. Demo website for illustration purposes. <span data-c="brand.serviceArea"></span> <span data-c="brand.license"></span></p>
+    <ul><li><a href="#/support/licenses-and-insurance">Licenses</a></li><li><a href="#/support/warranties">Warranties</a></li><li><a href="#">Privacy</a></li><li><a href="#">Accessibility</a></li></ul>
   </div>
 </footer>
 
-<!-- ===================== STICKY MOBILE CTA ===================== -->
 <div class="sticky-cta" id="sticky-cta">
-  <a href="tel:18005550199" class="sticky-cta__call" aria-label="Call now">
-    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .6 3.6 1 1 0 0 1-.25 1Z" fill="currentColor"/></svg>
-  </a>
-  <a href="#quote" class="btn btn--primary">Get a Free Quote</a>
+  <a href="tel:" class="sticky-cta__call" aria-label="Call now" data-c="brand.phoneLink"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .6 3.6 1 1 0 0 1-.25 1Z" fill="currentColor"/></svg></a>
+  <a href="#/quote" class="btn btn--primary">Get a Free Quote</a>
 </div>
 
-<button class="to-top" id="to-top" aria-label="Back to top">
-  <svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-</button>
+<button class="to-top" id="to-top" aria-label="Back to top"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 
+<script src="js/config.js"></script>
 <script src="js/main.js" defer></script>
 </body>
 </html>
