@@ -296,7 +296,7 @@
   function newState() {
     return {
       t: diff.time,
-      goose: { x: nest.x + 70, y: nest.y - 40, vx: 0, vy: 0, r: 16, facing: 1, stamina: 1, carrying: null, stun: 0, wobble: 0, honkCd: 0 },
+      goose: { x: nest.x + 70, y: nest.y - 40, vx: 0, vy: 0, r: 16, facing: 1, stamina: 1, carrying: null, stun: 0, wobble: 0, honkCd: 0, safe: 0 },
       keeper: { x: patrol[0].x, y: patrol[0].y, r: 18, speed: diff.speed, wp: 1, mode: 'patrol', stun: 0, alert: 0, carrying: null, pauseT: 0, facing: 1, inv: null, invT: 0, raiding: false, raidT: diff.raid + 5 },
       dog: null,
       items: ITEM_DEFS.map(d => ({ ...d, hx: d.x, hy: d.y, state: 'ground' })), // ground | goose | keeper | banked | pond
@@ -461,6 +461,7 @@
     if (g.carrying) speed *= 0.82;
     if (g.stun > 0) { g.stun -= dt; speed = 0; }
     g.honkCd = Math.max(0, g.honkCd - dt);
+    g.safe = Math.max(0, g.safe - dt);
     g.vx = ix * speed; g.vy = iy * speed;
     g.x += g.vx * dt; g.y += g.vy * dt;
     if (ix !== 0) g.facing = ix > 0 ? 1 : -1;
@@ -481,7 +482,7 @@
     const dk = dist(g, k);
     // He gets angrier (faster, sharper-eyed) with every item in your nest
     k.speed = diff.speed + 11 * s.banked.size;
-    const sees = dk < 280 + 15 * s.banked.size && g.stun <= 0;
+    const sees = dk < 280 + 15 * s.banked.size && g.stun <= 0 && g.safe <= 0;
     if (k.stun > 0) {
       // stunned: nothing
     } else if (k.carrying) {
@@ -569,7 +570,7 @@
     d.stun = Math.max(0, d.stun - dt); d.wag += dt * 14;
     if (d.stun > 0) return;
     const dd = dist(g, d);
-    if (dd < 230 && g.stun <= 0) {
+    if (dd < 230 && g.stun <= 0 && g.safe <= 0) {
       d.mode = 'chase'; stepToward(d, g, diff.dogSpeed, dt);
       if (dd < g.r + d.r + 4) catchGoose(d);
     } else {
@@ -593,7 +594,7 @@
     } else if (g.carrying) { const it = g.carrying; it.state = 'keeper'; k.carrying = it; g.carrying = null; toast('He got the ' + it.name.toLowerCase() + ' back!'); }
     else toast('Shooed away!');
     // Thrown back toward the nest
-    g.x = nest.x + 90; g.y = nest.y - 60; g.stun = 1.0; g.stamina = Math.max(g.stamina, 0.5);
+    g.x = nest.x + 90; g.y = nest.y - 60; g.stun = 1.0; g.safe = 3; g.stamina = Math.max(g.stamina, 0.5);
     k.alert = 0; k.stun = 1.2;
   }
 
@@ -724,6 +725,7 @@
   function drawGoose(g) {
     const bob = Math.sin(g.wobble) * 2, tilt = Math.sin(g.wobble) * 0.08;
     ctx.save(); ctx.translate(g.x, g.y); ctx.scale(g.facing, 1); ctx.rotate(tilt);
+    if (g.safe > 0) ctx.globalAlpha = 0.5 + 0.35 * Math.sin(g.safe * 20); // flash while safe after a catch
     ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.beginPath(); ctx.ellipse(0, 14, 18, 7, 0, 0, TAU); ctx.fill();
     // feet
     ctx.fillStyle = '#f08a24';
