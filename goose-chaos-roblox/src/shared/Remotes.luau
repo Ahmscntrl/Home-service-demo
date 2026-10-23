@@ -12,6 +12,9 @@ local NAMES = {
 	"GameState", -- server -> client: phase, time left, roles, scores
 	"Toast", -- server -> client: short message to show
 	"Stamina", -- server -> client: 0..1
+	"Tasks", -- server -> client: this goose's prank list with done flags
+	"Shake", -- server -> client: camera shake strength
+	"Pop", -- server -> client: floating score text at a position
 }
 
 local folder: Folder
