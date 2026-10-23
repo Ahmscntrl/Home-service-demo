@@ -488,16 +488,17 @@
     } else if (k.carrying) {
       // return item home
       const it = k.carrying, tgt = { x: it.hx, y: it.hy };
-      stepToward(k, tgt, k.speed * 0.9, dt);
-      if (dist(k, tgt) < 10) { it.state = 'ground'; it.x = it.hx; it.y = it.hy; k.carrying = null; }
+      navTo(k, tgt, k.speed * 0.9, dt);
+      if (dist(k, tgt) < 16) { it.state = 'ground'; it.x = it.hx; it.y = it.hy; k.carrying = null; }
     } else if (sees) {
       k.alert = Math.min(1, k.alert + dt * 2);
       k.mode = 'chase';
-      stepToward(k, g, k.speed * (g.carrying ? 1.1 : 1.0), dt); k.inv = null;
+      navTo(k, g, k.speed * (g.carrying ? 1.1 : 1.0), dt);
+      k.inv = { x: g.x, y: g.y }; k.invT = 3; // if he loses sight he searches where he last saw you
       if (dk < g.r + k.r + 4) catchGoose(k);
     } else if (k.inv) {
       k.mode = 'investigate'; k.invT -= dt;
-      stepToward(k, k.inv, k.speed * 0.85, dt);
+      navTo(k, k.inv, k.speed * 0.85, dt);
       if (dist(k, k.inv) < 14 || k.invT <= 0) { k.inv = null; k.pauseT = 1.2; }
     } else {
       k.alert = Math.max(0, k.alert - dt * 0.6);
@@ -506,7 +507,7 @@
       for (const it of s.items) { if (it.state === 'ground' && (it.x !== it.hx || it.y !== it.hy)) { const d = dist(k, it); if (d < bd) { bd = d; dropped = it; } } }
       if (k.raiding && s.banked.size > 0) {
         // Walk to the nest and take back the most valuable thing in it
-        k.mode = 'raid'; stepToward(k, nest, k.speed * 0.85, dt);
+        k.mode = 'raid'; navTo(k, nest, k.speed * 0.85, dt);
         if (dist(k, nest) < nest.r) {
           let best = null;
           for (const it of s.items) if (it.state === 'banked' && (!best || it.value > best.value)) best = it;
@@ -515,8 +516,8 @@
           toast(`He took back the ${best.name.toLowerCase()}!`, 1800); blip(140, 0.3, 'sawtooth');
         }
       } else if (dropped) {
-        k.mode = 'tidy'; stepToward(k, dropped, k.speed * 0.8, dt);
-        if (dist(k, dropped) < 22) { dropped.state = 'keeper'; k.carrying = dropped; }
+        k.mode = 'tidy'; navTo(k, dropped, k.speed * 0.8, dt);
+        if (dist(k, dropped) < 30) { dropped.state = 'keeper'; k.carrying = dropped; }
       } else {
         k.mode = 'patrol'; k.raiding = false;
         k.raidT -= dt;
@@ -524,7 +525,7 @@
         if (k.pauseT > 0) k.pauseT -= dt;
         else {
           const wp = patrol[k.wp];
-          stepToward(k, wp, k.speed * 0.7, dt);
+          navTo(k, wp, k.speed * 0.7, dt);
           if (dist(k, wp) < 8) { k.wp = (k.wp + 1) % patrol.length; k.pauseT = 0.8 + Math.random(); }
         }
       }
@@ -552,6 +553,75 @@
     }
     if (allDone) endRound(true);
   }
+  // ---------- Pathfinding (A* on a grid so the chasers walk around hedges and houses) ----------
+  const CELL = 20, GW = Math.ceil(W / CELL), GH = Math.ceil(H / CELL);
+  function pointBlocked(x, y, pad) {
+    for (const w of walls) if (x > w.x - pad && x < w.x + w.w + pad && y > w.y - pad && y < w.y + w.h + pad) return true;
+    for (const tr of trees) if (Math.hypot(x - tr.x, y - tr.y) < 14 + pad) return true;
+    return false;
+  }
+  const blocked = new Uint8Array(GW * GH);
+  for (let gy = 0; gy < GH; gy++) for (let gx = 0; gx < GW; gx++) blocked[gy * GW + gx] = pointBlocked(gx * CELL + CELL / 2, gy * CELL + CELL / 2, 22) ? 1 : 0;
+  const cellOf = (x, y) => [clamp(Math.floor(x / CELL), 0, GW - 1), clamp(Math.floor(y / CELL), 0, GH - 1)];
+  function nearestOpen(gx, gy) {
+    if (!blocked[gy * GW + gx]) return [gx, gy];
+    for (let r = 1; r <= 6; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+      if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+      const nx = gx + dx, ny = gy + dy;
+      if (nx >= 0 && ny >= 0 && nx < GW && ny < GH && !blocked[ny * GW + nx]) return [nx, ny];
+    }
+    return null;
+  }
+  // Straight line is walkable for a body of the chaser's size
+  function lineClear(a, b) {
+    const d = dist(a, b), n = Math.ceil(d / 8);
+    for (let i = 1; i <= n; i++) { const t = i / n; if (pointBlocked(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, 15)) return false; }
+    return true;
+  }
+  const DIRS = [[1, 0, 1], [-1, 0, 1], [0, 1, 1], [0, -1, 1], [1, 1, 1.414], [1, -1, 1.414], [-1, 1, 1.414], [-1, -1, 1.414]];
+  function findPath(from, to) {
+    const s = nearestOpen(...cellOf(from.x, from.y)), t = nearestOpen(...cellOf(to.x, to.y));
+    if (!s || !t) return null;
+    const start = s[1] * GW + s[0], goal = t[1] * GW + t[0];
+    const gScore = new Float32Array(GW * GH).fill(Infinity), came = new Int32Array(GW * GH).fill(-1), closed = new Uint8Array(GW * GH);
+    const heap = [];
+    const push = (f, i) => { heap.push([f, i]); let c = heap.length - 1; while (c > 0) { const p = (c - 1) >> 1; if (heap[p][0] <= heap[c][0]) break; [heap[p], heap[c]] = [heap[c], heap[p]]; c = p; } };
+    const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let c = 0; for (;;) { const l = 2 * c + 1, r = l + 1; let m = c; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === c) break; [heap[m], heap[c]] = [heap[c], heap[m]]; c = m; } } return top[1]; };
+    const h = i => Math.hypot(i % GW - t[0], ((i / GW) | 0) - t[1]);
+    gScore[start] = 0; push(h(start), start);
+    while (heap.length) {
+      const cur = pop();
+      if (closed[cur]) continue;
+      if (cur === goal) break;
+      closed[cur] = 1;
+      const cx = cur % GW, cy = (cur / GW) | 0;
+      for (const [dx, dy, cost] of DIRS) {
+        const nx = cx + dx, ny = cy + dy;
+        if (nx < 0 || ny < 0 || nx >= GW || ny >= GH) continue;
+        const ni = ny * GW + nx;
+        if (blocked[ni] || closed[ni]) continue;
+        if (dx && dy && (blocked[cy * GW + nx] || blocked[ny * GW + cx])) continue; // no cutting corners
+        const ng = gScore[cur] + cost;
+        if (ng < gScore[ni]) { gScore[ni] = ng; came[ni] = cur; push(ng + h(ni), ni); }
+      }
+    }
+    if (goal !== start && came[goal] === -1) return null;
+    const pts = [];
+    for (let i = goal; i !== start && i !== -1; i = came[i]) pts.push({ x: (i % GW) * CELL + CELL / 2, y: ((i / GW) | 0) * CELL + CELL / 2 });
+    pts.reverse(); pts.push({ x: to.x, y: to.y });
+    return pts;
+  }
+  // Walk toward a target, going around obstacles when the straight line is blocked
+  function navTo(ent, tgt, speed, dt) {
+    if (lineClear(ent, tgt)) { ent.path = null; stepToward(ent, tgt, speed, dt); return; }
+    ent.repath = (ent.repath || 0) - dt;
+    if (!ent.path || !ent.path.length || ent.repath <= 0) { ent.path = findPath(ent, tgt); ent.repath = 0.35; }
+    if (!ent.path || !ent.path.length) { stepToward(ent, tgt, speed, dt); return; }
+    while (ent.path.length > 1 && lineClear(ent, ent.path[1])) ent.path.shift(); // skip waypoints we can see past
+    if (ent.path.length > 1 && dist(ent, ent.path[0]) < 10) ent.path.shift();
+    stepToward(ent, ent.path[0], speed, dt);
+  }
+
   function stepToward(ent, tgt, speed, dt) {
     const dx = tgt.x - ent.x, dy = tgt.y - ent.y, d = Math.hypot(dx, dy) || 1;
     const sx = dx / d * speed * dt, sy = dy / d * speed * dt;
@@ -571,16 +641,22 @@
     if (d.stun > 0) return;
     const dd = dist(g, d);
     if (dd < 230 && g.stun <= 0 && g.safe <= 0) {
-      d.mode = 'chase'; stepToward(d, g, diff.dogSpeed, dt);
+      d.mode = 'chase'; navTo(d, g, diff.dogSpeed, dt);
+      d.lastSeen = { x: g.x, y: g.y }; d.lastT = 3;
       if (dd < g.r + d.r + 4) catchGoose(d);
+    } else if (d.lastSeen && d.lastT > 0 && g.safe <= 0) {
+      // Lost sight: run to where the goose was last seen
+      d.mode = 'chase'; d.lastT -= dt; navTo(d, d.lastSeen, diff.dogSpeed * 0.85, dt);
+      if (dist(d, d.lastSeen) < 12) d.lastSeen = null;
     } else {
+      d.lastSeen = null;
       // Sniff around near the groundskeeper
       d.mode = 'sniff'; d.wanderT -= dt;
       if (!d.wander || d.wanderT <= 0 || dist(d, d.wander) < 12) {
         d.wander = { x: clamp(k.x + (Math.random() - .5) * 500, 40, W - 40), y: clamp(k.y + (Math.random() - .5) * 500, 40, H - 40) };
         d.wanderT = 3;
       }
-      stepToward(d, d.wander, 110, dt);
+      navTo(d, d.wander, 110, dt);
     }
   }
   function catchGoose(catcher) {
@@ -590,12 +666,12 @@
     if (catcher !== k) {
       // The dog makes you drop it; the groundskeeper tidies it away later
       if (g.carrying) { const it = g.carrying; it.state = 'ground'; it.x = g.x; it.y = g.y + 10; g.carrying = null; }
-      toast('The dog got you!'); catcher.stun = 1.5;
+      toast('The dog got you!'); catcher.stun = 1.5; catcher.lastSeen = null;
     } else if (g.carrying) { const it = g.carrying; it.state = 'keeper'; k.carrying = it; g.carrying = null; toast('He got the ' + it.name.toLowerCase() + ' back!'); }
     else toast('Shooed away!');
     // Thrown back toward the nest
     g.x = nest.x + 90; g.y = nest.y - 60; g.stun = 1.0; g.safe = 3; g.stamina = Math.max(g.stamina, 0.5);
-    k.alert = 0; k.stun = 1.2;
+    k.alert = 0; k.stun = 1.2; k.inv = null;
   }
 
   // ---------- Render ----------
