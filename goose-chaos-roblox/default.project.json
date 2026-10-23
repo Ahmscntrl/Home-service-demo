@@ -1,0 +1,32 @@
+{
+  "name": "GooseChaos",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Shared": { "$path": "src/shared" }
+    },
+    "ServerScriptService": {
+      "Server": { "$path": "src/server" }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "Client": { "$path": "src/client" }
+      },
+      "$properties": {
+        "CharacterWalkSpeed": 14,
+        "CharacterJumpPower": 35
+      }
+    },
+    "Workspace": {
+      "$properties": { "FilteringEnabled": true }
+    },
+    "Lighting": {
+      "$properties": {
+        "Brightness": 2.5,
+        "ClockTime": 13.5,
+        "Ambient": [0.45, 0.5, 0.42],
+        "OutdoorAmbient": [0.55, 0.6, 0.5]
+      }
+    }
+  }
+}
