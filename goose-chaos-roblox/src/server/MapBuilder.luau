@@ -144,7 +144,7 @@ function MapBuilder.build(): Map
 	-- Terrain ground (grass with blades) and a water pond
 	local terrain = workspace.Terrain
 	terrain:Clear()
-	terrain.Decoration = true
+	-- Terrain.Decoration (grass blades) is not scriptable; it is set in default.project.json
 	terrain.WaterColor = Color3.fromRGB(60, 140, 180)
 	terrain.WaterTransparency = 0.6
 	terrain.WaterWaveSize = 0.1

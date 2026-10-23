@@ -19,7 +19,11 @@
       }
     },
     "Workspace": {
-      "$properties": { "FilteringEnabled": true }
+      "$properties": { "FilteringEnabled": true },
+      "Terrain": {
+        "$className": "Terrain",
+        "$properties": { "Decoration": true }
+      }
     },
     "Lighting": {
       "$properties": {
