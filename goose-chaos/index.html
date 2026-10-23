@@ -241,15 +241,15 @@
 
   // Items to steal. Each has a value and a home spot.
   const ITEM_DEFS = [
-    { id: 'hat',      name: "Gardener's hat", value: 60, color: '#d9a441', x: 720, y: 330 },
-    { id: 'sandwich', name: 'Sandwich',       value: 25, color: '#e3c07b', x: 700, y: 260 },
+    { id: 'hat',      name: "Gardener's hat", value: 60, color: '#d9a441', x: 750, y: 330 },
+    { id: 'sandwich', name: 'Sandwich',       value: 25, color: '#e3c07b', x: 650, y: 330 },
     { id: 'keys',     name: 'Keys',           value: 40, color: '#b8c0c8', x: 1180, y: 860 },
     { id: 'gnome',    name: 'Garden gnome',   value: 50, color: '#c43d2f', x: 180, y: 260 },
     { id: 'radio',    name: 'Radio',          value: 45, color: '#4b5a7a', x: 560, y: 190 },
     { id: 'teacup',   name: 'Teacup',         value: 20, color: '#f3f0ea', x: 450, y: 520 },
     { id: 'boot',     name: 'Wellie boot',    value: 30, color: '#3e7d4a', x: 900, y: 720 },
     { id: 'rake',     name: 'Rake',           value: 35, color: '#9c6b3c', x: 1240, y: 580 },
-    { id: 'trophy',   name: 'Prize marrow',   value: 80, color: '#6fae3a', x: 640, y: 120 },
+    { id: 'trophy',   name: 'Prize marrow',   value: 80, color: '#6fae3a', x: 700, y: 110 },
   ];
 
   const TASKS = [
@@ -410,7 +410,7 @@
       } else it.state = 'ground';
       return;
     }
-    let best = null, bd = 44;
+    let best = null, bd = 56;
     for (const it of state.items) {
       if (it.state !== 'ground') continue;
       const d = dist(g, it); if (d < bd) { bd = d; best = it; }
