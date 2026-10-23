@@ -15,6 +15,7 @@ export type Map = {
 	pondCenter: Vector3,
 	pondRadius: number,
 	keeperSpawn: Vector3,
+	villagerSpots: { Vector3 },
 }
 
 local function part(props: { [string]: any }): Part
@@ -225,6 +226,14 @@ function MapBuilder.build(): Map
 		Vector3.new(-10, GROUND_Y, -40),
 	}
 
+	-- where the villagers hang out: the bench, the pond, the big house, the far green
+	local villagerSpots = {
+		Vector3.new(10, GROUND_Y, -30),
+		Vector3.new(30, GROUND_Y, -46),
+		Vector3.new(50, GROUND_Y, 30),
+		Vector3.new(-50, GROUND_Y, 40),
+	}
+
 	return {
 		folder = folder,
 		nestSpots = nestSpots,
@@ -232,6 +241,7 @@ function MapBuilder.build(): Map
 		pondCenter = pondCenter,
 		pondRadius = pondRadius,
 		keeperSpawn = keeperSpawn,
+		villagerSpots = villagerSpots,
 	}
 end
 

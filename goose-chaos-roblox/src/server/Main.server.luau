@@ -1,9 +1,11 @@
 --!strict
--- Goose Chaos: round loop, roles, honking, catching, scoring.
+-- Goose Chaos: round loop, roles, honking, catching, pranks, scoring.
 --
 -- Phases: intermission -> round -> results -> (repeat)
 -- Roles:  one Groundskeeper (a player, or an NPC when nobody is free),
---         everyone else is a Goose with a nest.
+--         everyone else is a Goose with a nest and a prank to-do list.
+-- Also on the green: villagers to scare, and the dog that comes out
+-- partway through the round.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -11,10 +13,13 @@ local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
+local TaskDefs = require(ReplicatedStorage.Shared.Tasks)
 local MapBuilder = require(script.Parent.MapBuilder)
 local Items = require(script.Parent.Items)
 local NpcKeeper = require(script.Parent.NpcKeeper)
 local Costumes = require(script.Parent.Costumes)
+local Villagers = require(script.Parent.Villagers)
+local Dog = require(script.Parent.Dog)
 
 local map = MapBuilder.build()
 Items.init(map.folder)
@@ -40,16 +45,23 @@ type GooseData = {
 	honkReadyAt: number,
 	safeUntil: number,
 	honksLanded: number,
+	scared: number,
+	keysInPond: boolean,
 	stealReadyAt: number,
+	tasksDone: { [string]: boolean },
+	allTasksDone: boolean,
+	bonus: number,
 }
 type Phase = "intermission" | "round" | "results"
 
 local phase: Phase = "intermission"
 local phaseEndsAt = os.clock() + Config.INTERMISSION_SECONDS
+local roundStartedAt = 0
 local geese: { [Player]: GooseData } = {}
 local keeperPlayer: Player? = nil
 local npc: NpcKeeper.Npc? = nil
-local keeperScore = { catches = 0, returned = 0 }
+local dog: Dog.Dog? = nil
+local keeperScore = { catches = 0, returned = 0, dogCatches = 0 }
 local keeperHistory: { [Player]: number } = {} -- how many times each player has been keeper
 
 local function toast(player: Player?, text: string)
@@ -58,6 +70,10 @@ local function toast(player: Player?, text: string)
 	else
 		Remotes.Toast:FireAllClients(text)
 	end
+end
+
+local function pop(position: Vector3, text: string, color: Color3?)
+	Remotes.Pop:FireAllClients(position, text, color)
 end
 
 local function characterOf(player: Player): Model?
@@ -78,8 +94,18 @@ local function keeperCharacter(): Model?
 	return nil
 end
 
+local function keeperPosition(): Vector3
+	local kc = keeperCharacter()
+	local root = kc and kc:FindFirstChild("HumanoidRootPart") :: BasePart?
+	return if root then root.Position else map.keeperSpawn
+end
+
 local function gooseScore(data: GooseData): number
-	return Items.nestValue(data.nest) + data.honksLanded * Config.POINTS_PER_HONK_LANDED
+	return Items.nestValue(data.nest) + data.honksLanded * Config.POINTS_PER_HONK_LANDED + data.scared * Config.VILLAGER_SCARE_POINTS + data.bonus
+end
+
+local function keeperPoints(): number
+	return keeperScore.catches * Config.POINTS_PER_CATCH + keeperScore.returned * Config.POINTS_PER_ITEM_RETURNED + keeperScore.dogCatches * Config.POINTS_PER_DOG_CATCH
 end
 
 local function updateNestLabels()
@@ -100,6 +126,61 @@ local function updateNestLabels()
 	end
 end
 
+-- ---------- Tasks ----------
+local function sendTasks(player: Player, data: GooseData)
+	local list = {}
+	for _, def in TaskDefs do
+		table.insert(list, { id = def.id, text = def.text, done = data.tasksDone[def.id] == true })
+	end
+	Remotes.Tasks:FireClient(player, list)
+end
+
+local function taskSatisfied(id: string, data: GooseData): boolean
+	if id == "hat" then
+		local hat = Items.byId.hat
+		return hat ~= nil and hat.state == "banked" and hat.nest == data.nest
+	elseif id == "scare" then
+		return data.scared >= 3
+	elseif id == "keys" then
+		return data.keysInPond
+	elseif id == "honk" then
+		return data.honksLanded >= 3
+	elseif id == "nest" then
+		return #Items.inNest(data.nest) >= 4
+	end
+	return false
+end
+
+local function checkTasks(player: Player, data: GooseData)
+	local changed = false
+	local all = true
+	for _, def in TaskDefs do
+		if not data.tasksDone[def.id] and taskSatisfied(def.id, data) then
+			data.tasksDone[def.id] = true
+			data.bonus += def.points
+			changed = true
+			toast(player, "✔ " .. def.text .. "  (+" .. def.points .. ")")
+			local c = characterOf(player)
+			local root = c and c:FindFirstChild("HumanoidRootPart") :: BasePart?
+			if root then
+				pop(root.Position + Vector3.new(0, 4, 0), "+" .. def.points, Color3.fromRGB(120, 230, 120))
+			end
+		end
+		if not data.tasksDone[def.id] then
+			all = false
+		end
+	end
+	if all and not data.allTasksDone then
+		data.allTasksDone = true
+		data.bonus += Config.ALL_TASKS_BONUS
+		toast(nil, player.DisplayName .. " finished the whole prank list! +" .. Config.ALL_TASKS_BONUS .. " HONK!")
+		changed = true
+	end
+	if changed then
+		sendTasks(player, data)
+	end
+end
+
 -- ---------- Broadcasting ----------
 local function broadcast()
 	local scores: { { name: string, role: string, score: number } } = {}
@@ -107,7 +188,7 @@ local function broadcast()
 		table.insert(scores, { name = player.DisplayName, role = "goose", score = gooseScore(data) })
 	end
 	local keeperName = if npc then "Groundskeeper (NPC)" elseif keeperPlayer then keeperPlayer.DisplayName else "—"
-	table.insert(scores, { name = keeperName, role = "keeper", score = keeperScore.catches * Config.POINTS_PER_CATCH + keeperScore.returned * Config.POINTS_PER_ITEM_RETURNED })
+	table.insert(scores, { name = keeperName, role = "keeper", score = keeperPoints() })
 	table.sort(scores, function(a, b)
 		return a.score > b.score
 	end)
@@ -149,7 +230,7 @@ local function assignRoles()
 		npc:destroy()
 		npc = nil
 	end
-	keeperScore = { catches = 0, returned = 0 }
+	keeperScore = { catches = 0, returned = 0, dogCatches = 0 }
 	for _, nest in nestParts do
 		nest:SetAttribute("Owner", "")
 	end
@@ -188,7 +269,22 @@ local function assignRoles()
 			local nest = nestParts[nestIndex]
 			nestIndex += 1
 			nest:SetAttribute("Owner", p.DisplayName)
-			geese[p] = { player = p, nest = nest, stamina = 1, sprinting = false, honkReadyAt = 0, safeUntil = 0, honksLanded = 0, stealReadyAt = 0 }
+			local data: GooseData = {
+				player = p,
+				nest = nest,
+				stamina = 1,
+				sprinting = false,
+				honkReadyAt = 0,
+				safeUntil = 0,
+				honksLanded = 0,
+				scared = 0,
+				keysInPond = false,
+				stealReadyAt = 0,
+				tasksDone = {},
+				allTasksDone = false,
+				bonus = 0,
+			}
+			geese[p] = data
 			p:SetAttribute("Role", "goose")
 			setSpeed(p, Config.GOOSE_WALK_SPEED)
 			teleport(p, nest.Position)
@@ -196,7 +292,8 @@ local function assignRoles()
 			if gc then
 				task.spawn(Costumes.dressGoose, gc)
 			end
-			toast(p, "You're a GOOSE. Steal things and bring them to your nest. HONK to stun him.")
+			sendTasks(p, data)
+			toast(p, "You're a GOOSE. Work through your prank list. HONK to scare people.")
 		else
 			p:SetAttribute("Role", "spectator")
 			toast(p, "Nests are full this round. You'll play next round.")
@@ -232,6 +329,25 @@ local function setSafe(player: Player, seconds: number)
 	end)
 end
 
+-- anything the goose is carrying goes home. Check both the item records
+-- and the character itself so nothing can ride along.
+local function stripCarried(c: Model): number
+	local n = 0
+	local item = Items.carriedBy(c)
+	if item then
+		Items.returnHome(item)
+		n += 1
+	end
+	for _, child in c:GetChildren() do
+		local id = child:GetAttribute("ItemId")
+		if typeof(id) == "string" and Items.byId[id] then
+			Items.returnHome(Items.byId[id])
+			n += 1
+		end
+	end
+	return n
+end
+
 local function catchGoose(player: Player)
 	local data = geese[player]
 	local c = characterOf(player)
@@ -239,28 +355,57 @@ local function catchGoose(player: Player)
 		return
 	end
 	keeperScore.catches += 1
-	-- anything the goose is carrying goes straight home. Check both the
-	-- item records and the character itself so nothing can ride along.
-	local item = Items.carriedBy(c)
-	if item then
-		Items.returnHome(item)
-		keeperScore.returned += 1
-		toast(player, "Caught! He took the " .. item.def.name:lower() .. " back.")
+	local root = c:FindFirstChild("HumanoidRootPart") :: BasePart
+	local carried = Items.carriedBy(c)
+	local returned = stripCarried(c)
+	if returned > 0 then
+		keeperScore.returned += returned
+		toast(player, "Caught! He took the " .. (if carried then carried.def.name:lower() else "loot") .. " back.")
 	else
 		toast(player, "Shooed away!")
 	end
-	for _, child in c:GetChildren() do
-		local id = child:GetAttribute("ItemId")
-		if typeof(id) == "string" and Items.byId[id] then
-			Items.returnHome(Items.byId[id])
-		end
-	end
-	updateNestLabels()
+	pop(root.Position + Vector3.new(0, 4, 0), "CAUGHT!", Color3.fromRGB(255, 90, 70))
+	Remotes.Shake:FireClient(player, 1)
 	if keeperPlayer then
 		toast(keeperPlayer, "You caught " .. player.DisplayName .. "!")
 	end
 	teleport(player, data.nest.Position)
 	setSafe(player, Config.SAFE_SECONDS_AFTER_CATCH)
+	updateNestLabels()
+end
+
+-- The dog doesn't send you home; it knocks the item out of your beak
+local function dogCatch(player: Player)
+	local data = geese[player]
+	local c = characterOf(player)
+	if not data or not c then
+		return
+	end
+	local root = c:FindFirstChild("HumanoidRootPart") :: BasePart
+	local item = Items.carriedBy(c)
+	if item then
+		Items.drop(item, map.pondCenter, map.pondRadius)
+		toast(player, "The dog knocked the " .. item.def.name:lower() .. " out of your beak!")
+	else
+		toast(player, "The dog got you!")
+	end
+	keeperScore.dogCatches += 1
+	pop(root.Position + Vector3.new(0, 4, 0), "WOOF!", Color3.fromRGB(255, 160, 60))
+	Remotes.Shake:FireClient(player, 0.6)
+	local h = c:FindFirstChildOfClass("Humanoid")
+	if h then
+		h.WalkSpeed = 0
+		task.delay(0.8, function()
+			if h.Parent and geese[player] then
+				h.WalkSpeed = Config.GOOSE_WALK_SPEED
+			end
+		end)
+	end
+	setSafe(player, 2)
+	if dog then
+		dog.stunnedUntil = os.clock() + 1.5
+		dog.humanoid.WalkSpeed = 0
+	end
 end
 
 local function raidNest(nest: Part)
@@ -272,6 +417,7 @@ local function raidNest(nest: Part)
 	keeperScore.returned += 1
 	local owner = nest:GetAttribute("Owner")
 	toast(nil, "The groundskeeper took the " .. item.def.name:lower() .. " back from " .. tostring(owner) .. "'s nest!")
+	pop(nest.Position + Vector3.new(0, 5, 0), "-" .. item.def.value, Color3.fromRGB(255, 90, 70))
 	updateNestLabels()
 end
 
@@ -293,6 +439,7 @@ Remotes.Honk.OnServerEvent:Connect(function(player)
 
 	local root = c:FindFirstChild("HumanoidRootPart") :: BasePart
 	local s = honkSound:Clone()
+	s.PlaybackSpeed = 0.9 + math.random() * 0.25
 	s.Parent = root
 	s:Play()
 	task.delay(2, function()
@@ -300,10 +447,24 @@ Remotes.Honk.OnServerEvent:Connect(function(player)
 	end)
 	Costumes.honkBurst(root)
 
+	-- villagers
+	local scared = Villagers.scare(root.Position, now)
+	if scared > 0 then
+		data.scared += scared
+		pop(root.Position + Vector3.new(0, 5, 0), "+" .. scared * Config.VILLAGER_SCARE_POINTS .. " scared!", Color3.fromRGB(255, 220, 90))
+	end
+
+	-- the dog
+	if dog and (dog.root.Position - root.Position).Magnitude <= Config.HONK_RANGE then
+		dog:stun(Config.DOG_STUN_SECONDS)
+	end
+
+	-- the groundskeeper
 	local kc = keeperCharacter()
 	local kroot = kc and kc:FindFirstChild("HumanoidRootPart") :: BasePart?
 	if kroot and (kroot.Position - root.Position).Magnitude <= Config.HONK_RANGE then
 		data.honksLanded += 1
+		pop(kroot.Position + Vector3.new(0, 5, 0), "STUNNED +" .. Config.POINTS_PER_HONK_LANDED, Color3.fromRGB(255, 220, 60))
 		if npc then
 			npc:stun(Config.HONK_STUN_SECONDS)
 		elseif keeperPlayer then
@@ -312,6 +473,7 @@ Remotes.Honk.OnServerEvent:Connect(function(player)
 				h.WalkSpeed = 0
 				Costumes.showStun(kc, Config.HONK_STUN_SECONDS)
 				toast(keeperPlayer, "HONK! You're stunned.")
+				Remotes.Shake:FireClient(keeperPlayer, 0.5)
 				task.delay(Config.HONK_STUN_SECONDS, function()
 					if h.Parent and keeperPlayer and h.Parent == characterOf(keeperPlayer) then
 						h.WalkSpeed = Config.KEEPER_WALK_SPEED
@@ -319,8 +481,8 @@ Remotes.Honk.OnServerEvent:Connect(function(player)
 				end)
 			end
 		end
-		toast(player, "HONK! He hates that.")
 	end
+	checkTasks(player, data)
 end)
 
 -- ---------- Sprint ----------
@@ -347,6 +509,7 @@ Items.onGrab = function(player, item)
 			Items.returnHome(item)
 			keeperScore.returned += 1
 			toast(player, "Put the " .. item.def.name:lower() .. " back.")
+			pop(item.part.Position + Vector3.new(0, 3, 0), "+" .. Config.POINTS_PER_ITEM_RETURNED, Color3.fromRGB(120, 200, 255))
 			updateNestLabels()
 		end
 		return
@@ -356,7 +519,7 @@ Items.onGrab = function(player, item)
 		return
 	end
 	if Items.carriedBy(c) then
-		toast(player, "You're already carrying something. Drop it first (E).")
+		toast(player, "You're already carrying something. Drop it first (Q).")
 		return
 	end
 	if item.state == "banked" then
@@ -376,21 +539,23 @@ Items.onGrab = function(player, item)
 	updateNestLabels()
 end
 
--- Drop what you're carrying (E with nothing nearby, or the Drop button)
+-- Drop what you're carrying (Q / the Drop button)
 Remotes.Grab.OnServerEvent:Connect(function(player)
 	if phase ~= "round" then
 		return
 	end
 	local c = characterOf(player)
 	local item = c and Items.carriedBy(c)
-	if item then
+	local data = geese[player]
+	if item and data then
 		local inPond = Items.drop(item, map.pondCenter, map.pondRadius)
 		if inPond then
 			toast(nil, player.DisplayName .. " dropped the " .. item.def.name:lower() .. " in the pond!")
-			local data = geese[player]
-			if data then
-				data.honksLanded += 2 -- a prank is worth a couple of honks
+			pop(item.part.Position + Vector3.new(0, 3, 0), "SPLASH!", Color3.fromRGB(120, 200, 255))
+			if item.def.id == "keys" then
+				data.keysInPond = true
 			end
+			checkTasks(player, data)
 		end
 	end
 end)
@@ -398,10 +563,16 @@ end)
 -- ---------- Round loop ----------
 local function startRound()
 	phase = "round"
-	phaseEndsAt = os.clock() + Config.ROUND_SECONDS
+	roundStartedAt = os.clock()
+	phaseEndsAt = roundStartedAt + Config.ROUND_SECONDS
+	if dog then
+		dog:destroy()
+		dog = nil
+	end
 	Items.resetAll()
+	Villagers.spawn(map.villagerSpots)
 	assignRoles()
-	toast(nil, "Round start! " .. Config.ROUND_SECONDS // 60 .. " minutes. Fill your nest.")
+	toast(nil, "Round start! " .. Config.ROUND_SECONDS // 60 .. " minutes. Cause chaos.")
 	broadcast()
 end
 
@@ -417,11 +588,11 @@ local function endRound()
 			bestPlayer = player
 		end
 	end
-	local keeperPts = keeperScore.catches * Config.POINTS_PER_CATCH + keeperScore.returned * Config.POINTS_PER_ITEM_RETURNED
-	if bestPlayer and best >= keeperPts then
-		toast(nil, "Time's up! Top goose: " .. bestPlayer.DisplayName .. " with " .. best .. " points. HONK.")
+	local kp = keeperPoints()
+	if bestPlayer and best >= kp then
+		toast(nil, "Time's up! Top goose: " .. (bestPlayer :: Player).DisplayName .. " with " .. best .. " points. HONK.")
 	else
-		toast(nil, "Time's up! The groundskeeper wins with " .. keeperPts .. " points.")
+		toast(nil, "Time's up! The groundskeeper wins with " .. kp .. " points.")
 	end
 	for player in geese do
 		setSpeed(player, Config.GOOSE_WALK_SPEED)
@@ -436,6 +607,11 @@ local function startIntermission()
 		npc:destroy()
 		npc = nil
 	end
+	if dog then
+		dog:destroy()
+		dog = nil
+	end
+	Villagers.clear()
 	for _, p in Players:GetPlayers() do
 		p:SetAttribute("Role", "spectator")
 		task.spawn(Costumes.undress, p)
@@ -444,53 +620,55 @@ local function startIntermission()
 end
 
 local lastBroadcast = 0
+local lastStamina = 0
 RunService.Heartbeat:Connect(function(dt)
 	local now = os.clock()
 
 	if phase == "round" then
 		Items.update(now)
+		Villagers.update(now)
 
-		-- goose stamina and sprint
+		-- geese: stamina, sprint, banking
+		local gooseModels = {}
 		for player, data in geese do
 			local c = characterOf(player)
 			local h = c and c:FindFirstChildOfClass("Humanoid")
-			if h then
+			if c and h then
+				table.insert(gooseModels, c)
 				local moving = h.MoveDirection.Magnitude > 0
-				if data.sprinting and moving and data.stamina > 0.02 then
-					data.stamina = math.max(0, data.stamina - Config.STAMINA_DRAIN_PER_SEC * dt)
-					h.WalkSpeed = Config.GOOSE_SPRINT_SPEED
-				else
-					data.stamina = math.min(1, data.stamina + Config.STAMINA_REGEN_PER_SEC * dt)
-					h.WalkSpeed = Config.GOOSE_WALK_SPEED
-				end
-				if Items.carriedBy(c :: Model) then
-					h.WalkSpeed *= Config.GOOSE_CARRY_MULT
+				if h.WalkSpeed > 0 then
+					if data.sprinting and moving and data.stamina > 0.02 then
+						data.stamina = math.max(0, data.stamina - Config.STAMINA_DRAIN_PER_SEC * dt)
+						h.WalkSpeed = Config.GOOSE_SPRINT_SPEED
+					else
+						data.stamina = math.min(1, data.stamina + Config.STAMINA_REGEN_PER_SEC * dt)
+						h.WalkSpeed = Config.GOOSE_WALK_SPEED
+					end
+					if Items.carriedBy(c) then
+						h.WalkSpeed *= Config.GOOSE_CARRY_MULT
+					end
 				end
 				-- banking: standing on your own nest while carrying
-				local item = Items.carriedBy(c :: Model)
-				local root = (c :: Model):FindFirstChild("HumanoidRootPart") :: BasePart
-				if item and (Vector3.new(root.Position.X, 0, root.Position.Z) - Vector3.new(data.nest.Position.X, 0, data.nest.Position.Z)).Magnitude < 5 then
+				local item = Items.carriedBy(c)
+				local root = c:FindFirstChild("HumanoidRootPart") :: BasePart
+				if item and (Vector3.new(root.Position.X, 0, root.Position.Z) - Vector3.new(data.nest.Position.X, 0, data.nest.Position.Z)).Magnitude < 5.5 then
 					Items.bank(item, data.nest)
 					toast(player, "+" .. item.def.value .. "  " .. item.def.name)
+					pop(data.nest.Position + Vector3.new(0, 5, 0), "+" .. item.def.value, Color3.fromRGB(120, 230, 120))
 					updateNestLabels()
+					checkTasks(player, data)
 				end
 			end
 		end
 
-		-- the groundskeeper
-		local gooseModels = {}
-		for player in geese do
-			local c = characterOf(player)
-			if c then
-				table.insert(gooseModels, c)
-			end
-		end
 		local bankedCount = 0
 		for _, item in Items.list do
 			if item.state == "banked" then
 				bankedCount += 1
 			end
 		end
+
+		-- the groundskeeper
 		if npc then
 			local result = npc:update(now, gooseModels, nestParts, bankedCount)
 			if result then
@@ -520,7 +698,7 @@ RunService.Heartbeat:Connect(function(dt)
 				end
 				-- a human keeper raids by walking onto a nest
 				for _, nest in nestParts do
-					if (Vector3.new(nest.Position.X, 0, nest.Position.Z) - Vector3.new(kroot.Position.X, 0, kroot.Position.Z)).Magnitude < 5 then
+					if (Vector3.new(nest.Position.X, 0, nest.Position.Z) - Vector3.new(kroot.Position.X, 0, kroot.Position.Z)).Magnitude < 5.5 then
 						local lastRaid = nest:GetAttribute("LastRaid") :: number? or 0
 						if now - lastRaid > 6 and Items.mostValuableInNest(nest) then
 							nest:SetAttribute("LastRaid", now)
@@ -531,10 +709,27 @@ RunService.Heartbeat:Connect(function(dt)
 			end
 		end
 
-		-- stamina to each goose, 10x a second
-		if now - lastBroadcast > 0.1 then
+		-- the dog
+		if not dog and now - roundStartedAt >= Config.DOG_RELEASE_AT then
+			dog = Dog.new(map.keeperSpawn)
+			toast(nil, "Uh oh. He let the dog out! 🐕  Honk to scare it off.")
+		end
+		if dog then
+			local caught = dog:update(now, dt, gooseModels, keeperPosition())
+			if caught then
+				local p = Players:GetPlayerFromCharacter(caught)
+				if p then
+					dogCatch(p)
+				end
+			end
+		end
+
+		-- tasks that depend on state changing elsewhere (raids etc.)
+		if now - lastStamina > 0.1 then
+			lastStamina = now
 			for player, data in geese do
 				Remotes.Stamina:FireClient(player, data.stamina)
+				checkTasks(player, data)
 			end
 		end
 	end

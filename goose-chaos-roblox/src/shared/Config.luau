@@ -12,8 +12,8 @@ local Config = {
 	RESULTS_SECONDS = 10,
 
 	-- Geese
-	GOOSE_WALK_SPEED = 16,
-	GOOSE_SPRINT_SPEED = 23,
+	GOOSE_WALK_SPEED = 18,
+	GOOSE_SPRINT_SPEED = 26,
 	GOOSE_CARRY_MULT = 0.85, -- speed multiplier while carrying an item
 	STAMINA_DRAIN_PER_SEC = 0.5,
 	STAMINA_REGEN_PER_SEC = 0.22,
@@ -23,11 +23,20 @@ local Config = {
 	SAFE_SECONDS_AFTER_CATCH = 3,
 
 	-- Groundskeeper
-	KEEPER_WALK_SPEED = 21,
+	KEEPER_WALK_SPEED = 22,
 	KEEPER_SPEED_PER_BANKED_ITEM = 0.8, -- he gets faster the more loot is banked
 	CATCH_DISTANCE = 5, -- studs between root parts
 	NPC_KEEPER_SIGHT = 70, -- studs; only used when nobody is the groundskeeper
 	NPC_KEEPER_RAID_INTERVAL = 20,
+
+	-- Dog (let out partway through the round)
+	DOG_RELEASE_AT = 90, -- seconds into the round
+	DOG_SPEED = 27,
+	DOG_SIGHT = 55,
+	DOG_STUN_SECONDS = 2,
+
+	-- Villagers
+	VILLAGER_SCARE_POINTS = 5,
 
 	-- Items and nests
 	GRAB_DISTANCE = 8,
@@ -38,6 +47,8 @@ local Config = {
 	POINTS_PER_HONK_LANDED = 10,
 	POINTS_PER_CATCH = 25,
 	POINTS_PER_ITEM_RETURNED = 15,
+	POINTS_PER_DOG_CATCH = 10,
+	ALL_TASKS_BONUS = 150,
 }
 
 return Config
