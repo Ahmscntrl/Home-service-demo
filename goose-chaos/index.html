@@ -181,11 +181,11 @@
   <div class="screen" id="startScreen">
     <div class="card">
       <h1>GOOSE CHAOS</h1>
-      <p>You are a horrible goose. The groundskeeper wants you gone. Steal everything on the list, bring it to your nest, and don't get caught.</p>
+      <p>You are a horrible goose. The groundskeeper wants you gone. Steal everything on the list, bring it to your nest, and don't get caught. Halfway through, he lets the dog out.</p>
       <div class="keys">
         <kbd>WASD</kbd><span>Waddle</span>
         <kbd>Shift</kbd><span>Sprint (uses stamina)</span>
-        <kbd>Space</kbd><span>HONK — stuns the groundskeeper up close</span>
+        <kbd>Space</kbd><span>HONK: stuns him up close, but he hears it from afar</span>
         <kbd>E</kbd><span>Grab or drop an item</span>
       </div>
       <p class="sub" id="bestLine"></p>
@@ -276,7 +276,8 @@
     return {
       t: ROUND_SECONDS,
       goose: { x: nest.x + 70, y: nest.y - 40, vx: 0, vy: 0, r: 16, facing: 1, stamina: 1, carrying: null, stun: 0, wobble: 0, honkCd: 0 },
-      keeper: { x: patrol[0].x, y: patrol[0].y, r: 18, speed: 150, wp: 1, mode: 'patrol', stun: 0, alert: 0, carrying: null, pauseT: 0, facing: 1 },
+      keeper: { x: patrol[0].x, y: patrol[0].y, r: 18, speed: 185, wp: 1, mode: 'patrol', stun: 0, alert: 0, carrying: null, pauseT: 0, facing: 1, inv: null, invT: 0 },
+      dog: null,
       items: ITEM_DEFS.map(d => ({ ...d, hx: d.x, hy: d.y, state: 'ground' })), // ground | goose | keeper | banked | pond
       banked: new Set(),
       loot: 0,
@@ -390,9 +391,13 @@
   function doHonk() {
     const g = state.goose, k = state.keeper;
     if (g.honkCd > 0 || g.stun > 0) return;
-    g.honkCd = 1.2; state.honkRing = 1; honkSound(); spawnFeathers(g.x, g.y - 10, 3);
+    g.honkCd = 2.0; state.honkRing = 1; honkSound(); spawnFeathers(g.x, g.y - 10, 3);
+    const dog = state.dog;
+    if (dog && dist(g, dog) < 140 && dog.stun <= 0) { dog.stun = 2.0; toast('Bad dog!', 900); }
+    // A honk he isn't close enough to be stunned by still tells him where you are
+    if (dist(g, k) >= 140 && dist(g, k) < 480 && k.stun <= 0 && !k.carrying) { k.inv = { x: g.x, y: g.y }; k.invT = 4; }
     if (dist(g, k) < 140 && k.stun <= 0) {
-      k.stun = 1.6; k.alert = 1; state.honksLanded++; state.shake = 0.25;
+      k.stun = 1.2; k.alert = 1; k.inv = null; state.honksLanded++; state.shake = 0.25;
       if (k.carrying) { const it = k.carrying; it.state = 'ground'; it.x = k.x + 20; it.y = k.y + 10; k.carrying = null; }
       toast(['HONK!', 'HOOONK!', 'He hates that.'][Math.floor(Math.random() * 3)], 900);
       blip(160, 0.2, 'triangle');
@@ -453,7 +458,7 @@
     // Keeper AI
     k.stun = Math.max(0, k.stun - dt);
     const dk = dist(g, k);
-    const sees = dk < 260 && g.stun <= 0;
+    const sees = dk < 280 && g.stun <= 0;
     if (k.stun > 0) {
       // stunned: nothing
     } else if (k.carrying) {
@@ -464,8 +469,12 @@
     } else if (sees) {
       k.alert = Math.min(1, k.alert + dt * 2);
       k.mode = 'chase';
-      stepToward(k, g, k.speed * (g.carrying ? 1.15 : 1.0), dt);
-      if (dk < g.r + k.r + 4) catchGoose();
+      stepToward(k, g, k.speed * (g.carrying ? 1.1 : 1.0), dt); k.inv = null;
+      if (dk < g.r + k.r + 4) catchGoose(k);
+    } else if (k.inv) {
+      k.mode = 'investigate'; k.invT -= dt;
+      stepToward(k, k.inv, k.speed * 0.85, dt);
+      if (dist(k, k.inv) < 14 || k.invT <= 0) { k.inv = null; k.pauseT = 1.2; }
     } else {
       k.alert = Math.max(0, k.alert - dt * 0.6);
       // tidy up dropped items nearby, else patrol
@@ -479,12 +488,19 @@
         if (k.pauseT > 0) k.pauseT -= dt;
         else {
           const wp = patrol[k.wp];
-          stepToward(k, wp, k.speed * 0.6, dt);
+          stepToward(k, wp, k.speed * 0.7, dt);
           if (dist(k, wp) < 8) { k.wp = (k.wp + 1) % patrol.length; k.pauseT = 0.8 + Math.random(); }
         }
       }
     }
     collideWalls(k);
+
+    // The dog joins halfway through
+    if (!s.dog && s.t <= ROUND_SECONDS / 2) {
+      s.dog = { x: 1215, y: 830, r: 13, stun: 0, mode: 'sniff', facing: -1, wander: null, wanderT: 0, wag: 0 };
+      toast('Uh oh. He let the dog out!', 2200); blip(300, 0.15); blip(240, 0.2);
+    }
+    if (s.dog) updateDog(s.dog, dt);
 
     // Effects
     s.honkRing = Math.max(0, s.honkRing - dt * 2.2);
@@ -513,11 +529,33 @@
     }
     if (Math.abs(sx) > 0.01) ent.facing = sx > 0 ? 1 : -1;
   }
-  function catchGoose() {
+  function updateDog(d, dt) {
+    const g = state.goose, k = state.keeper;
+    d.stun = Math.max(0, d.stun - dt); d.wag += dt * 14;
+    if (d.stun > 0) return;
+    const dd = dist(g, d);
+    if (dd < 230 && g.stun <= 0) {
+      d.mode = 'chase'; stepToward(d, g, 230, dt);
+      if (dd < g.r + d.r + 4) catchGoose(d);
+    } else {
+      // Sniff around near the groundskeeper
+      d.mode = 'sniff'; d.wanderT -= dt;
+      if (!d.wander || d.wanderT <= 0 || dist(d, d.wander) < 12) {
+        d.wander = { x: clamp(k.x + (Math.random() - .5) * 500, 40, W - 40), y: clamp(k.y + (Math.random() - .5) * 500, 40, H - 40) };
+        d.wanderT = 3;
+      }
+      stepToward(d, d.wander, 110, dt);
+    }
+  }
+  function catchGoose(catcher) {
     const g = state.goose, k = state.keeper;
     state.caught++; state.shake = 0.4; blip(120, 0.35, 'sawtooth');
     spawnFeathers(g.x, g.y, 14);
-    if (g.carrying) { const it = g.carrying; it.state = 'keeper'; k.carrying = it; g.carrying = null; toast('He got the ' + it.name.toLowerCase() + ' back!'); }
+    if (catcher !== k) {
+      // The dog makes you drop it; the groundskeeper tidies it away later
+      if (g.carrying) { const it = g.carrying; it.state = 'ground'; it.x = g.x; it.y = g.y + 10; g.carrying = null; }
+      toast('The dog got you!'); catcher.stun = 1.5;
+    } else if (g.carrying) { const it = g.carrying; it.state = 'keeper'; k.carrying = it; g.carrying = null; toast('He got the ' + it.name.toLowerCase() + ' back!'); }
     else toast('Shooed away!');
     // Thrown back toward the nest
     g.x = nest.x + 90; g.y = nest.y - 60; g.stun = 1.0; g.stamina = Math.max(g.stamina, 0.5);
@@ -593,7 +631,7 @@
     }
 
     // Entities sorted by y so the lower one draws on top
-    const ents = [{ y: g.y, f: () => drawGoose(g) }, { y: k.y, f: () => drawKeeper(k) }, ...trees.map(t => ({ y: t.y, f: () => drawTree(t) }))];
+    const ents = [{ y: g.y, f: () => drawGoose(g) }, { y: k.y, f: () => drawKeeper(k) }, ...(s.dog ? [{ y: s.dog.y, f: () => drawDog(s.dog) }] : []), ...trees.map(t => ({ y: t.y, f: () => drawTree(t) }))];
     ents.sort((a, b) => a.y - b.y).forEach(e => e.f());
 
     // Feathers
@@ -631,6 +669,22 @@
     ctx.fillStyle = '#6b4a2b'; ctx.fillRect(t.x - 6, t.y - 20, 12, 26);
     ctx.fillStyle = '#2f7a35'; ctx.beginPath(); ctx.arc(t.x, t.y - 42, 32, 0, TAU); ctx.fill();
     ctx.fillStyle = '#3f9a44'; ctx.beginPath(); ctx.arc(t.x - 10, t.y - 50, 22, 0, TAU); ctx.fill();
+  }
+  function drawDog(d) {
+    ctx.save(); ctx.translate(d.x, d.y);
+    ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.beginPath(); ctx.ellipse(0, 10, 16, 6, 0, 0, TAU); ctx.fill();
+    ctx.scale(d.facing, 1);
+    ctx.strokeStyle = '#8a5a2b'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(-14, -4); ctx.lineTo(-22, -12 + Math.sin(d.wag) * 5); ctx.stroke();
+    ctx.fillStyle = '#6b4220'; ctx.fillRect(-11, 2, 5, 9); ctx.fillRect(6, 2, 5, 9);
+    ctx.fillStyle = d.stun > 0 ? '#c9a77f' : '#a8703a'; ctx.strokeStyle = '#2b2416'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(0, -2, 16, 9, 0, 0, TAU); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(16, -10, 9, 8, 0, 0, TAU); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#6b4220'; ctx.beginPath(); ctx.ellipse(12, -14, 4, 7, 0.4, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#2b2416'; ctx.beginPath(); ctx.arc(24, -10, 2.2, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.arc(18, -12, 1.5, 0, TAU); ctx.fill();
+    ctx.restore();
+    ctx.textAlign = 'center';
+    if (d.stun > 0) { ctx.fillStyle = '#2b2416'; ctx.font = '700 16px Fredoka, sans-serif'; ctx.fillText('✶', d.x, d.y - 30); }
+    else if (d.mode === 'chase') { ctx.fillStyle = '#d3412b'; ctx.font = '700 22px Fredoka, sans-serif'; ctx.fillText('!', d.x, d.y - 28); }
   }
   function drawGoose(g) {
     const bob = Math.sin(g.wobble) * 2, tilt = Math.sin(g.wobble) * 0.08;
@@ -687,7 +741,7 @@
     // alert indicator
     if (k.stun > 0) { ctx.fillStyle = '#2b2416'; ctx.font = '700 18px Fredoka, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('✶ ✶', k.x, k.y - 62); }
     else if (k.mode === 'chase') { ctx.fillStyle = '#d3412b'; ctx.font = '700 26px Fredoka, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('!', k.x, k.y - 60); }
-    else if (k.mode === 'tidy') { ctx.fillStyle = '#2b2416'; ctx.font = '700 20px Fredoka, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('?', k.x, k.y - 60); }
+    else if (k.mode === 'tidy' || k.mode === 'investigate') { ctx.fillStyle = '#2b2416'; ctx.font = '700 20px Fredoka, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('?', k.x, k.y - 60); }
   }
 
   // ---------- HUD ----------
