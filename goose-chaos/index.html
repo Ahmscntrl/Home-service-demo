@@ -853,7 +853,7 @@
   showDiff();
 
   // Draw the field behind the start screen so the first frame isn't empty
-  state = newState(); state.camX = 300; state.camY = 450; render();
+  state = newState(); state.camX = 0; state.camY = Math.max(0, H - canvas.clientHeight); render();
 
   // Debug hook for automated tests
   window.__goose = { get state() { return state; }, start: startRound, honk: doHonk, grab: doGrab, update, get running() { return running; } };
