@@ -13,8 +13,9 @@
         "Client": { "$path": "src/client" }
       },
       "$properties": {
-        "CharacterWalkSpeed": 14,
-        "CharacterJumpPower": 35
+        "CharacterWalkSpeed": 16,
+        "CharacterUseJumpPower": true,
+        "CharacterJumpPower": 0
       }
     },
     "Workspace": {
@@ -22,10 +23,39 @@
     },
     "Lighting": {
       "$properties": {
-        "Brightness": 2.5,
-        "ClockTime": 13.5,
-        "Ambient": [0.45, 0.5, 0.42],
-        "OutdoorAmbient": [0.55, 0.6, 0.5]
+        "Technology": "ShadowMap",
+        "GlobalShadows": true,
+        "Brightness": 2.2,
+        "ClockTime": 14.2,
+        "GeographicLatitude": 30,
+        "Ambient": [0.36, 0.4, 0.33],
+        "OutdoorAmbient": [0.5, 0.56, 0.47],
+        "EnvironmentDiffuseScale": 0.6,
+        "EnvironmentSpecularScale": 0.5,
+        "ShadowSoftness": 0.3
+      },
+      "Atmosphere": {
+        "$className": "Atmosphere",
+        "$properties": {
+          "Density": 0.32,
+          "Offset": 0.2,
+          "Color": [0.78, 0.84, 0.9],
+          "Decay": [0.55, 0.62, 0.7],
+          "Glare": 0.3,
+          "Haze": 1.2
+        }
+      },
+      "SunRays": {
+        "$className": "SunRaysEffect",
+        "$properties": { "Intensity": 0.08, "Spread": 0.6 }
+      },
+      "Bloom": {
+        "$className": "BloomEffect",
+        "$properties": { "Intensity": 0.3, "Size": 24, "Threshold": 1.2 }
+      },
+      "ColorCorrection": {
+        "$className": "ColorCorrectionEffect",
+        "$properties": { "Saturation": 0.12, "Contrast": 0.06, "TintColor": [1, 0.98, 0.94] }
       }
     }
   }

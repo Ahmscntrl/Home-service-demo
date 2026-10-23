@@ -14,6 +14,7 @@ local Remotes = require(ReplicatedStorage.Shared.Remotes)
 local MapBuilder = require(script.Parent.MapBuilder)
 local Items = require(script.Parent.Items)
 local NpcKeeper = require(script.Parent.NpcKeeper)
+local Costumes = require(script.Parent.Costumes)
 
 local map = MapBuilder.build()
 Items.init(map.folder)
@@ -178,6 +179,10 @@ local function assignRoles()
 			p:SetAttribute("Role", "keeper")
 			setSpeed(p, Config.KEEPER_WALK_SPEED)
 			teleport(p, map.keeperSpawn)
+			local kc = characterOf(p)
+			if kc then
+				task.spawn(Costumes.dressKeeper, kc)
+			end
 			toast(p, "You're the GROUNDSKEEPER. Catch the geese and take your things back!")
 		elseif nestIndex <= #nestParts then
 			local nest = nestParts[nestIndex]
@@ -187,6 +192,10 @@ local function assignRoles()
 			p:SetAttribute("Role", "goose")
 			setSpeed(p, Config.GOOSE_WALK_SPEED)
 			teleport(p, nest.Position)
+			local gc = characterOf(p)
+			if gc then
+				task.spawn(Costumes.dressGoose, gc)
+			end
 			toast(p, "You're a GOOSE. Steal things and bring them to your nest. HONK to stun him.")
 		else
 			p:SetAttribute("Role", "spectator")
@@ -230,6 +239,8 @@ local function catchGoose(player: Player)
 		return
 	end
 	keeperScore.catches += 1
+	-- anything the goose is carrying goes straight home. Check both the
+	-- item records and the character itself so nothing can ride along.
 	local item = Items.carriedBy(c)
 	if item then
 		Items.returnHome(item)
@@ -238,6 +249,13 @@ local function catchGoose(player: Player)
 	else
 		toast(player, "Shooed away!")
 	end
+	for _, child in c:GetChildren() do
+		local id = child:GetAttribute("ItemId")
+		if typeof(id) == "string" and Items.byId[id] then
+			Items.returnHome(Items.byId[id])
+		end
+	end
+	updateNestLabels()
 	if keeperPlayer then
 		toast(keeperPlayer, "You caught " .. player.DisplayName .. "!")
 	end
@@ -280,6 +298,7 @@ Remotes.Honk.OnServerEvent:Connect(function(player)
 	task.delay(2, function()
 		s:Destroy()
 	end)
+	Costumes.honkBurst(root)
 
 	local kc = keeperCharacter()
 	local kroot = kc and kc:FindFirstChild("HumanoidRootPart") :: BasePart?
@@ -289,14 +308,13 @@ Remotes.Honk.OnServerEvent:Connect(function(player)
 			npc:stun(Config.HONK_STUN_SECONDS)
 		elseif keeperPlayer then
 			local h = kc and kc:FindFirstChildOfClass("Humanoid")
-			if h then
+			if h and kc then
 				h.WalkSpeed = 0
-				h.JumpPower = 0
+				Costumes.showStun(kc, Config.HONK_STUN_SECONDS)
 				toast(keeperPlayer, "HONK! You're stunned.")
 				task.delay(Config.HONK_STUN_SECONDS, function()
 					if h.Parent and keeperPlayer and h.Parent == characterOf(keeperPlayer) then
 						h.WalkSpeed = Config.KEEPER_WALK_SPEED
-						h.JumpPower = 35
 					end
 				end)
 			end
@@ -417,6 +435,10 @@ local function startIntermission()
 	if npc then
 		npc:destroy()
 		npc = nil
+	end
+	for _, p in Players:GetPlayers() do
+		p:SetAttribute("Role", "spectator")
+		task.spawn(Costumes.undress, p)
 	end
 	broadcast()
 end
@@ -542,13 +564,26 @@ Players.PlayerAdded:Connect(function(player: Player)
 	player:SetAttribute("Role", "spectator")
 	player.CharacterAdded:Connect(function(c: Model)
 		c:SetAttribute("Safe", false)
-		-- respawn mid-round goes to your nest
+		-- no jumping: geese waddle, and nobody hops the hedges
+		local h = c:WaitForChild("Humanoid", 5) :: Humanoid?
+		if h then
+			h.UseJumpPower = true
+			h.JumpPower = 0
+			h:SetStateEnabled(Enum.HumanoidStateType.Jumping, false)
+		end
+		-- respawn mid-round goes to your nest, in costume
 		task.wait(0.2)
 		local data = geese[player]
 		if data then
 			c:PivotTo(CFrame.new(data.nest.Position + Vector3.new(0, 4, 0)))
+			if phase == "round" then
+				task.spawn(Costumes.dressGoose, c)
+			end
 		elseif player == keeperPlayer then
 			c:PivotTo(CFrame.new(map.keeperSpawn))
+			if phase == "round" then
+				task.spawn(Costumes.dressKeeper, c)
+			end
 		end
 	end)
 	toast(player, "Welcome to Goose Chaos. The next round starts soon.")

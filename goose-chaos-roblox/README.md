@@ -77,7 +77,7 @@ src/client/HUD.client.luau       timer, role, stamina, scoreboard, toasts
 
 ## Next steps
 
-- Goose and groundskeeper character models (right now everyone is their own avatar).
+- Better goose look (a proper goose mesh instead of a dressed-up avatar).
 - The dog, as a second NPC that comes out halfway through.
 - Per-goose prank checklist (the web prototype's to-do list).
 - Cosmetics shop: hats, honk sounds, trails.

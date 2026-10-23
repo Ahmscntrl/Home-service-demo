@@ -1,6 +1,7 @@
 --!strict
 -- Goose controls. Keyboard: Shift = sprint, Space = honk, Q = drop.
 -- (E on an item is handled by the item's ProximityPrompt.)
+-- Jumping is off for everyone (set by the server), so Space is free for honking.
 -- On touch screens ContextActionService adds on-screen buttons for these.
 
 local ContextActionService = game:GetService("ContextActionService")
@@ -20,7 +21,7 @@ local function honk(_name: string, state: Enum.UserInputState)
 	if state == Enum.UserInputState.Begin and isGoose() then
 		Remotes.Honk:FireServer()
 	end
-	return Enum.ContextActionResult.Pass
+	return Enum.ContextActionResult.Sink
 end
 
 local function drop(_name: string, state: Enum.UserInputState)
@@ -53,9 +54,3 @@ if touch then
 	ContextActionService:SetTitle("GooseSprint", "RUN")
 	ContextActionService:SetPosition("GooseSprint", UDim2.new(0.72, 0, 0.5, 0))
 end
-
--- Stop jumping being used as a free escape: geese hop, they don't leap
-player.CharacterAdded:Connect(function(c)
-	local h = c:WaitForChild("Humanoid") :: Humanoid
-	h.UseJumpPower = true
-end)

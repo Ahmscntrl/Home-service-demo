@@ -37,10 +37,14 @@ end
 
 local function placeOnGround(item: Item, position: Vector3)
 	local p = item.part
+	-- leave the character first, then anchor and move, so no leftover
+	-- assembly velocity or weld can drag it along
+	p.Parent = itemFolder
 	p.Anchored = true
 	p.CanCollide = false
+	p.AssemblyLinearVelocity = Vector3.zero
+	p.AssemblyAngularVelocity = Vector3.zero
 	p.CFrame = CFrame.new(position + Vector3.new(0, p.Size.Y / 2 + 0.2, 0))
-	p.Parent = itemFolder
 end
 
 function Items.init(parentFolder: Folder)
@@ -107,9 +111,10 @@ end
 
 local function detach(item: Item): Vector3
 	local p = item.part
-	local weld = p:FindFirstChild("CarryWeld")
-	if weld then
-		weld:Destroy()
+	for _, c in p:GetChildren() do
+		if c:IsA("WeldConstraint") or c:IsA("Weld") then
+			c:Destroy()
+		end
 	end
 	local pos = p.Position
 	item.carrier = nil
