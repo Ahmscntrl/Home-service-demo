@@ -139,6 +139,13 @@
   }
   .card button:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.3); }
   .card button:focus-visible { outline: 3px solid var(--panel-fg); outline-offset: 2px; }
+  .card .diff { display: flex; gap: 8px; justify-content: center; margin-top: 18px; }
+  .card .diff button {
+    margin-top: 0; padding: 8px 18px; font-size: 16px;
+    background: #ece3cc; color: var(--panel-fg); box-shadow: 0 3px 0 rgba(0,0,0,.2);
+  }
+  .card .diff button[aria-pressed="true"] { background: var(--panel-fg); color: var(--panel); }
+  .card button.ghost { margin-top: 10px; padding: 6px 12px; background: transparent; box-shadow: none; color: var(--muted); font-size: 15px; text-decoration: underline; }
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
   .stats div { background: #f3ecd9; border-radius: 10px; padding: 8px 4px; }
   .stats b { display: block; font-family: var(--font-display); font-size: 22px; }
@@ -188,6 +195,11 @@
         <kbd>Space</kbd><span>HONK: stuns him up close, but he hears it from afar</span>
         <kbd>E</kbd><span>Grab or drop an item</span>
       </div>
+      <div class="diff" aria-label="Difficulty">
+        <button type="button" id="diffEasy" data-diff="easy" aria-pressed="false">Easy</button>
+        <button type="button" id="diffNormal" data-diff="normal" aria-pressed="true">Normal</button>
+        <button type="button" id="diffHard" data-diff="hard" aria-pressed="false">Hard</button>
+      </div>
       <p class="sub" id="bestLine"></p>
       <button id="btnStart" type="button">Start honking</button>
     </div>
@@ -205,6 +217,7 @@
       </div>
       <p id="endMsg"></p>
       <button id="btnAgain" type="button">Play again</button>
+      <div><button id="btnMenu" type="button" class="ghost">Change difficulty</button></div>
     </div>
   </div>
 </div>
@@ -215,7 +228,15 @@
 
   // ---------- World ----------
   const W = 1400, H = 1000;
-  const ROUND_SECONDS = 180;
+  // time: round length (s), speed: groundskeeper base speed, raid: seconds between nest raids,
+  // dogAt: seconds into the round before the dog comes out, dogSpeed: dog chase speed
+  const DIFFS = {
+    easy:   { name: 'easy',   label: 'Easy',   time: 180, speed: 165, raid: 40, dogAt: 90, dogSpeed: 205 },
+    normal: { name: 'normal', label: 'Normal', time: 180, speed: 185, raid: 25, dogAt: 60, dogSpeed: 230 },
+    hard:   { name: 'hard',   label: 'Hard',   time: 150, speed: 205, raid: 15, dogAt: 20, dogSpeed: 255 },
+  };
+  let diff = DIFFS.normal;
+  try { diff = DIFFS[localStorage.getItem('gooseChaosDiff')] || DIFFS.normal; } catch (e) {}
   const TAU = Math.PI * 2;
 
   const nest = { x: 110, y: 890, r: 46 };
@@ -274,9 +295,9 @@
 
   function newState() {
     return {
-      t: ROUND_SECONDS,
+      t: diff.time,
       goose: { x: nest.x + 70, y: nest.y - 40, vx: 0, vy: 0, r: 16, facing: 1, stamina: 1, carrying: null, stun: 0, wobble: 0, honkCd: 0 },
-      keeper: { x: patrol[0].x, y: patrol[0].y, r: 18, speed: 185, wp: 1, mode: 'patrol', stun: 0, alert: 0, carrying: null, pauseT: 0, facing: 1, inv: null, invT: 0, raiding: false, raidT: 30 },
+      keeper: { x: patrol[0].x, y: patrol[0].y, r: 18, speed: diff.speed, wp: 1, mode: 'patrol', stun: 0, alert: 0, carrying: null, pauseT: 0, facing: 1, inv: null, invT: 0, raiding: false, raidT: diff.raid + 5 },
       dog: null,
       items: ITEM_DEFS.map(d => ({ ...d, hx: d.x, hy: d.y, state: 'ground' })), // ground | goose | keeper | banked | pond
       banked: new Set(),
@@ -459,7 +480,7 @@
     k.stun = Math.max(0, k.stun - dt);
     const dk = dist(g, k);
     // He gets angrier (faster, sharper-eyed) with every item in your nest
-    k.speed = 185 + 11 * s.banked.size;
+    k.speed = diff.speed + 11 * s.banked.size;
     const sees = dk < 280 + 15 * s.banked.size && g.stun <= 0;
     if (k.stun > 0) {
       // stunned: nothing
@@ -489,7 +510,7 @@
           let best = null;
           for (const it of s.items) if (it.state === 'banked' && (!best || it.value > best.value)) best = it;
           s.banked.delete(best.id); s.loot -= best.value; best.state = 'keeper'; k.carrying = best;
-          k.raiding = false; k.raidT = 25;
+          k.raiding = false; k.raidT = diff.raid;
           toast(`He took back the ${best.name.toLowerCase()}!`, 1800); blip(140, 0.3, 'sawtooth');
         }
       } else if (dropped) {
@@ -510,7 +531,7 @@
     collideWalls(k);
 
     // The dog comes out after a minute, or sooner if you're causing trouble
-    if (!s.dog && (s.t <= ROUND_SECONDS - 60 || s.tasks.filter(t => t.done).length >= 2)) {
+    if (!s.dog && (s.t <= diff.time - diff.dogAt || s.tasks.filter(t => t.done).length >= 2)) {
       s.dog = { x: 1215, y: 830, r: 13, stun: 0, mode: 'sniff', facing: -1, wander: null, wanderT: 0, wag: 0 };
       toast('Uh oh. He let the dog out!', 2200); blip(300, 0.15); blip(240, 0.2);
     }
@@ -549,7 +570,7 @@
     if (d.stun > 0) return;
     const dd = dist(g, d);
     if (dd < 230 && g.stun <= 0) {
-      d.mode = 'chase'; stepToward(d, g, 230, dt);
+      d.mode = 'chase'; stepToward(d, g, diff.dogSpeed, dt);
       if (dd < g.r + d.r + 4) catchGoose(d);
     } else {
       // Sniff around near the groundskeeper
@@ -784,8 +805,8 @@
     if (running) { render(); hud(); syncTasks(); requestAnimationFrame(frame); }
   }
 
-  function loadBest() { try { return Number(localStorage.getItem('gooseChaosBest') || 0); } catch (e) { return 0; } }
-  function saveBest(v) { try { localStorage.setItem('gooseChaosBest', String(v)); } catch (e) {} }
+  function loadBest() { try { return Number(localStorage.getItem('gooseChaosBest_' + diff.name) || 0); } catch (e) { return 0; } }
+  function saveBest(v) { try { localStorage.setItem('gooseChaosBest_' + diff.name, String(v)); } catch (e) {} }
 
   function startRound() {
     ensureAudio(); if (audio && audio.state === 'suspended') audio.resume();
@@ -807,7 +828,7 @@
     document.getElementById('sCaught').textContent = s.caught;
     document.getElementById('endMsg').textContent =
       (won ? `Finished with ${Math.round(s.t)}s to spare (+${timeBonus} bonus). ` : '') +
-      (score > best ? 'New personal best!' : `Best: ${best}.`);
+      (score > best ? `New personal best on ${diff.label}!` : `Best on ${diff.label}: ${best}.`);
     render();
     document.getElementById('endScreen').hidden = false;
     document.getElementById('btnAgain').focus();
@@ -815,8 +836,21 @@
 
   document.getElementById('btnStart').addEventListener('click', startRound);
   document.getElementById('btnAgain').addEventListener('click', startRound);
-  const best = loadBest();
-  document.getElementById('bestLine').textContent = best ? `Personal best: ${best}` : 'No score yet';
+  document.getElementById('btnMenu').addEventListener('click', () => {
+    document.getElementById('endScreen').hidden = true; document.getElementById('startScreen').hidden = false; showDiff();
+  });
+  const diffBtns = document.querySelectorAll('[data-diff]');
+  function showDiff() {
+    diffBtns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.diff === diff.name)));
+    const best = loadBest();
+    document.getElementById('bestLine').textContent = best ? `${diff.label} best: ${best}` : `No ${diff.label} score yet`;
+  }
+  diffBtns.forEach(b => b.addEventListener('click', () => {
+    diff = DIFFS[b.dataset.diff];
+    try { localStorage.setItem('gooseChaosDiff', diff.name); } catch (e) {}
+    showDiff();
+  }));
+  showDiff();
 
   // Draw the field behind the start screen so the first frame isn't empty
   state = newState(); state.camX = 300; state.camY = 450; render();
