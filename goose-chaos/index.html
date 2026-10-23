@@ -181,7 +181,7 @@
   <div class="screen" id="startScreen">
     <div class="card">
       <h1>GOOSE CHAOS</h1>
-      <p>You are a horrible goose. The groundskeeper wants you gone. Steal everything on the list, bring it to your nest, and don't get caught. Halfway through, he lets the dog out.</p>
+      <p>You are a horrible goose. The groundskeeper wants you gone. Steal everything on the list, bring it to your nest, and don't get caught. He'll raid your nest, and if you cause too much trouble he lets the dog out.</p>
       <div class="keys">
         <kbd>WASD</kbd><span>Waddle</span>
         <kbd>Shift</kbd><span>Sprint (uses stamina)</span>
@@ -257,7 +257,7 @@
     { id: 'picnic',  text: 'Nab the sandwich',         done: false, check: s => s.banked.has('sandwich') },
     { id: 'keys',    text: 'Drop the keys in the pond', done: false, check: s => s.keysInPond },
     { id: 'honk',    text: 'Honk at him 3 times',      done: false, check: s => s.honksLanded >= 3 },
-    { id: 'five',    text: 'Bring 5 things to the nest', done: false, check: s => s.banked.size >= 5 },
+    { id: 'five',    text: 'Have 6 things in your nest', done: false, check: s => s.banked.size >= 6 },
   ];
 
   const patrol = [
@@ -276,7 +276,7 @@
     return {
       t: ROUND_SECONDS,
       goose: { x: nest.x + 70, y: nest.y - 40, vx: 0, vy: 0, r: 16, facing: 1, stamina: 1, carrying: null, stun: 0, wobble: 0, honkCd: 0 },
-      keeper: { x: patrol[0].x, y: patrol[0].y, r: 18, speed: 185, wp: 1, mode: 'patrol', stun: 0, alert: 0, carrying: null, pauseT: 0, facing: 1, inv: null, invT: 0 },
+      keeper: { x: patrol[0].x, y: patrol[0].y, r: 18, speed: 185, wp: 1, mode: 'patrol', stun: 0, alert: 0, carrying: null, pauseT: 0, facing: 1, inv: null, invT: 0, raiding: false, raidT: 30 },
       dog: null,
       items: ITEM_DEFS.map(d => ({ ...d, hx: d.x, hy: d.y, state: 'ground' })), // ground | goose | keeper | banked | pond
       banked: new Set(),
@@ -458,7 +458,9 @@
     // Keeper AI
     k.stun = Math.max(0, k.stun - dt);
     const dk = dist(g, k);
-    const sees = dk < 280 && g.stun <= 0;
+    // He gets angrier (faster, sharper-eyed) with every item in your nest
+    k.speed = 185 + 11 * s.banked.size;
+    const sees = dk < 280 + 15 * s.banked.size && g.stun <= 0;
     if (k.stun > 0) {
       // stunned: nothing
     } else if (k.carrying) {
@@ -480,11 +482,23 @@
       // tidy up dropped items nearby, else patrol
       let dropped = null, bd = 220;
       for (const it of s.items) { if (it.state === 'ground' && (it.x !== it.hx || it.y !== it.hy)) { const d = dist(k, it); if (d < bd) { bd = d; dropped = it; } } }
-      if (dropped) {
+      if (k.raiding && s.banked.size > 0) {
+        // Walk to the nest and take back the most valuable thing in it
+        k.mode = 'raid'; stepToward(k, nest, k.speed * 0.85, dt);
+        if (dist(k, nest) < nest.r) {
+          let best = null;
+          for (const it of s.items) if (it.state === 'banked' && (!best || it.value > best.value)) best = it;
+          s.banked.delete(best.id); s.loot -= best.value; best.state = 'keeper'; k.carrying = best;
+          k.raiding = false; k.raidT = 25;
+          toast(`He took back the ${best.name.toLowerCase()}!`, 1800); blip(140, 0.3, 'sawtooth');
+        }
+      } else if (dropped) {
         k.mode = 'tidy'; stepToward(k, dropped, k.speed * 0.8, dt);
         if (dist(k, dropped) < 22) { dropped.state = 'keeper'; k.carrying = dropped; }
       } else {
-        k.mode = 'patrol';
+        k.mode = 'patrol'; k.raiding = false;
+        k.raidT -= dt;
+        if (k.raidT <= 0 && s.banked.size > 0) { k.raiding = true; toast("He's heading for your nest!", 2000); blip(200, 0.2); }
         if (k.pauseT > 0) k.pauseT -= dt;
         else {
           const wp = patrol[k.wp];
@@ -495,8 +509,8 @@
     }
     collideWalls(k);
 
-    // The dog joins halfway through
-    if (!s.dog && s.t <= ROUND_SECONDS / 2) {
+    // The dog comes out after a minute, or sooner if you're causing trouble
+    if (!s.dog && (s.t <= ROUND_SECONDS - 60 || s.tasks.filter(t => t.done).length >= 2)) {
       s.dog = { x: 1215, y: 830, r: 13, stun: 0, mode: 'sniff', facing: -1, wander: null, wanderT: 0, wag: 0 };
       toast('Uh oh. He let the dog out!', 2200); blip(300, 0.15); blip(240, 0.2);
     }
@@ -741,6 +755,7 @@
     // alert indicator
     if (k.stun > 0) { ctx.fillStyle = '#2b2416'; ctx.font = '700 18px Fredoka, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('✶ ✶', k.x, k.y - 62); }
     else if (k.mode === 'chase') { ctx.fillStyle = '#d3412b'; ctx.font = '700 26px Fredoka, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('!', k.x, k.y - 60); }
+    else if (k.mode === 'raid') { ctx.fillStyle = '#f08a24'; ctx.font = '700 26px Fredoka, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('!!', k.x, k.y - 60); }
     else if (k.mode === 'tidy' || k.mode === 'investigate') { ctx.fillStyle = '#2b2416'; ctx.font = '700 20px Fredoka, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('?', k.x, k.y - 60); }
   }
 
