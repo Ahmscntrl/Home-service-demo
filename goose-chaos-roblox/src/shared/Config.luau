@@ -58,13 +58,13 @@ local Config = {
 	-- load. Swap any of them for a Creator Store id ("rbxassetid://123") to
 	-- change the feel; a real goose honk is the first thing to replace.
 	SOUNDS = {
-		honk = { id = "rbxasset://sounds/uuhhh.mp3", volume = 1.2, speed = 1.7 },
-		scream = { id = "rbxasset://sounds/Kid saying Ouch.wav", volume = 1, speed = 1.1 },
-		bark = { id = "rbxasset://sounds/snap.wav", volume = 1, speed = 0.55 },
+		honk = { id = "rbxassetid://138096010", volume = 1.2, speed = 1 }, -- "Goose Honk" by DerForschungen, 0.8 s
+		scream = { id = "rbxassetid://9125652432", volume = 1, speed = 1 }, -- Pro Sound Effects "Male Scream Short Yelling Bursts", 1.1 s
+		bark = { id = "rbxassetid://5041900663", volume = 1, speed = 1 }, -- "Dog Barking" by Michaeloplis, 1.0 s
 		splash = { id = "rbxasset://sounds/impact_water.mp3", volume = 1, speed = 1 },
 		bank = { id = "rbxasset://sounds/electronicpingshort.wav", volume = 0.8, speed = 1.3 },
 		caught = { id = "rbxasset://sounds/bass.wav", volume = 1, speed = 0.8 },
-		stun = { id = "rbxasset://sounds/swoosh.wav", volume = 0.9, speed = 0.7 },
+		stun = { id = "rbxasset://sounds/swordslash.wav", volume = 0.9, speed = 0.7 },
 		prank = { id = "rbxasset://sounds/button.wav", volume = 0.8, speed = 1.2 },
 		roundStart = { id = "rbxasset://sounds/action_get_up.mp3", volume = 0.8, speed = 1 },
 		roundEnd = { id = "rbxasset://sounds/victory.wav", volume = 0.9, speed = 1 },

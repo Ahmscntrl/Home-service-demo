@@ -49,7 +49,6 @@ function Sfx.all(name: string)
 		return
 	end
 	s.Parent = SoundService
-	SoundService:PlayLocalSound(s) -- no-op on the server; fall back to Play
 	s:Play()
 	s.Ended:Once(function()
 		s:Destroy()
