@@ -51,6 +51,7 @@ local Config = {
 	POINTS_PER_ITEM_RETURNED = 15,
 	POINTS_PER_DOG_CATCH = 10,
 	ALL_TASKS_BONUS = 150,
+	TIME_BONUS_PER_SECOND = 2, -- finishing the list early ends the round and pays this per second left
 }
 
 return Config

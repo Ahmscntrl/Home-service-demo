@@ -52,6 +52,7 @@ type GooseData = {
 	allTasksDone: boolean,
 	bonus: number,
 	caught: number,
+	taskSig: string,
 }
 type Phase = "intermission" | "round" | "results"
 
@@ -128,14 +129,6 @@ local function updateNestLabels()
 end
 
 -- ---------- Tasks ----------
-local function sendTasks(player: Player, data: GooseData)
-	local list = {}
-	for _, def in TaskDefs do
-		table.insert(list, { id = def.id, text = def.text, done = data.tasksDone[def.id] == true })
-	end
-	Remotes.Tasks:FireClient(player, list)
-end
-
 local function taskSatisfied(id: string, data: GooseData): boolean
 	if id == "hat" then
 		local hat = Items.byId.hat
@@ -152,14 +145,31 @@ local function taskSatisfied(id: string, data: GooseData): boolean
 	return false
 end
 
-local function checkTasks(player: Player, data: GooseData)
-	local changed = false
-	local all = true
+-- The list shows what is true right now (a raid can uncheck the hat or
+-- the nest count). Points are paid the first time each prank is done.
+local function sendTasks(player: Player, data: GooseData)
+	local list = {}
+	local sig = ""
 	for _, def in TaskDefs do
-		if not data.tasksDone[def.id] and taskSatisfied(def.id, data) then
+		local live = taskSatisfied(def.id, data)
+		table.insert(list, { id = def.id, text = def.text, done = live })
+		sig ..= if live then "1" else "0"
+	end
+	if data.taskSig ~= sig then
+		data.taskSig = sig
+		Remotes.Tasks:FireClient(player, list)
+	end
+end
+
+local finishRound: ((Player?) -> ())? = nil -- set below; ends the round early when a goose finishes the list
+
+local function checkTasks(player: Player, data: GooseData)
+	local allLive = true
+	for _, def in TaskDefs do
+		local live = taskSatisfied(def.id, data)
+		if live and not data.tasksDone[def.id] then
 			data.tasksDone[def.id] = true
 			data.bonus += def.points
-			changed = true
 			toast(player, "✔ " .. def.text .. "  (+" .. def.points .. ")")
 			local c = characterOf(player)
 			local root = c and c:FindFirstChild("HumanoidRootPart") :: BasePart?
@@ -167,18 +177,21 @@ local function checkTasks(player: Player, data: GooseData)
 				pop(root.Position + Vector3.new(0, 4, 0), "+" .. def.points, Color3.fromRGB(120, 230, 120))
 			end
 		end
-		if not data.tasksDone[def.id] then
-			all = false
+		if not live then
+			allLive = false
 		end
 	end
-	if all and not data.allTasksDone then
+	sendTasks(player, data)
+	if allLive and not data.allTasksDone and phase == "round" then
 		data.allTasksDone = true
 		data.bonus += Config.ALL_TASKS_BONUS
-		toast(nil, player.DisplayName .. " finished the whole prank list! +" .. Config.ALL_TASKS_BONUS .. " HONK!")
-		changed = true
-	end
-	if changed then
-		sendTasks(player, data)
+		local left = math.max(0, math.floor(phaseEndsAt - os.clock()))
+		local timeBonus = left * Config.TIME_BONUS_PER_SECOND
+		data.bonus += timeBonus
+		toast(nil, player.DisplayName .. " finished the whole prank list with " .. left .. "s to spare! +" .. (Config.ALL_TASKS_BONUS + timeBonus))
+		if finishRound then
+			finishRound(player)
+		end
 	end
 end
 
@@ -285,6 +298,7 @@ local function assignRoles()
 				allTasksDone = false,
 				bonus = 0,
 				caught = 0,
+				taskSig = "",
 			}
 			geese[p] = data
 			p:SetAttribute("Role", "goose")
@@ -581,6 +595,9 @@ local function startRound()
 end
 
 local function endRound()
+	if phase ~= "round" then
+		return
+	end
 	phase = "results"
 	phaseEndsAt = os.clock() + Config.RESULTS_SECONDS
 	local bestPlayer: Player? = nil
@@ -615,6 +632,10 @@ local function endRound()
 		setSpeed(player, Config.GOOSE_WALK_SPEED)
 	end
 	broadcast()
+end
+
+finishRound = function(_finisher: Player?)
+	task.defer(endRound) -- let the current heartbeat finish before tearing the round down
 end
 
 local function startIntermission()
