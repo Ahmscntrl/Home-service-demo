@@ -51,6 +51,7 @@ type GooseData = {
 	tasksDone: { [string]: boolean },
 	allTasksDone: boolean,
 	bonus: number,
+	caught: number,
 }
 type Phase = "intermission" | "round" | "results"
 
@@ -283,6 +284,7 @@ local function assignRoles()
 				tasksDone = {},
 				allTasksDone = false,
 				bonus = 0,
+				caught = 0,
 			}
 			geese[p] = data
 			p:SetAttribute("Role", "goose")
@@ -355,6 +357,7 @@ local function catchGoose(player: Player)
 		return
 	end
 	keeperScore.catches += 1
+	data.caught += 1
 	local root = c:FindFirstChild("HumanoidRootPart") :: BasePart
 	local carried = Items.carriedBy(c)
 	local returned = stripCarried(c)
@@ -390,6 +393,7 @@ local function dogCatch(player: Player)
 		toast(player, "The dog got you!")
 	end
 	keeperScore.dogCatches += 1
+	data.caught += 1
 	pop(root.Position + Vector3.new(0, 4, 0), "WOOF!", Color3.fromRGB(255, 160, 60))
 	Remotes.Shake:FireClient(player, 0.6)
 	local h = c:FindFirstChildOfClass("Humanoid")
@@ -589,11 +593,24 @@ local function endRound()
 		end
 	end
 	local kp = keeperPoints()
-	if bestPlayer and best >= kp then
-		toast(nil, "Time's up! Top goose: " .. (bestPlayer :: Player).DisplayName .. " with " .. best .. " points. HONK.")
-	else
-		toast(nil, "Time's up! The groundskeeper wins with " .. kp .. " points.")
+	local geeseWin = bestPlayer ~= nil and best >= kp
+	local keeperName = if npc then "The groundskeeper" elseif keeperPlayer then keeperPlayer.DisplayName else "The groundskeeper"
+	local winner = if geeseWin then (bestPlayer :: Player).DisplayName else keeperName
+
+	-- full breakdown to every player; the HUD shows it for the results phase
+	local rows: { { [string]: any } } = {}
+	for player, data in geese do
+		local pranks = 0
+		for _ in data.tasksDone do
+			pranks += 1
+		end
+		table.insert(rows, { name = player.DisplayName, role = "goose", score = gooseScore(data), loot = Items.nestValue(data.nest), pranks = pranks, scares = data.scared, honks = data.honksLanded, caught = data.caught })
 	end
+	table.insert(rows, { name = keeperName, role = "keeper", score = kp, catches = keeperScore.catches + keeperScore.dogCatches, returned = keeperScore.returned })
+	table.sort(rows, function(a, b)
+		return (a.score :: number) > (b.score :: number)
+	end)
+	Remotes.Results:FireAllClients({ winner = winner, geeseWin = geeseWin, rows = rows, seconds = Config.RESULTS_SECONDS, totalPranks = #TaskDefs })
 	for player in geese do
 		setSpeed(player, Config.GOOSE_WALK_SPEED)
 	end

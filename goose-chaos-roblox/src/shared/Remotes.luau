@@ -15,6 +15,7 @@ local NAMES = {
 	"Tasks", -- server -> client: this goose's prank list with done flags
 	"Shake", -- server -> client: camera shake strength
 	"Pop", -- server -> client: floating score text at a position
+	"Results", -- server -> client: end-of-round breakdown
 }
 
 local folder: Folder

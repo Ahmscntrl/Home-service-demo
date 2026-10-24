@@ -221,6 +221,84 @@ RunService.RenderStepped:Connect(function(dt: number)
 	end
 end)
 
+-- Results card: stays up for the whole results phase so you can read it
+local results = Instance.new("Frame")
+results.Name = "Results"
+results.AnchorPoint = Vector2.new(0.5, 0.5)
+results.Position = UDim2.fromScale(0.5, 0.5)
+results.Size = UDim2.fromOffset(460, 100)
+results.BackgroundColor3 = CREAM
+results.BorderSizePixel = 0
+results.Visible = false
+results.Parent = gui
+round(results, 18)
+local resultsList = Instance.new("UIListLayout")
+resultsList.SortOrder = Enum.SortOrder.LayoutOrder
+resultsList.Padding = UDim.new(0, 6)
+resultsList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+resultsList.Parent = results
+local resultsPad = Instance.new("UIPadding")
+resultsPad.PaddingTop = UDim.new(0, 16)
+resultsPad.PaddingBottom = UDim.new(0, 14)
+resultsPad.PaddingLeft = UDim.new(0, 18)
+resultsPad.PaddingRight = UDim.new(0, 18)
+resultsPad.Parent = results
+local resTitle = label(results, "Title", "", UDim2.new(1, 0, 0, 40), UDim2.new(), ORANGE)
+resTitle.LayoutOrder = 1
+resTitle.TextStrokeTransparency = 0
+resTitle.TextStrokeColor3 = INK
+local resSub = label(results, "Sub", "", UDim2.new(1, 0, 0, 22), UDim2.new(), MUTED, Enum.Font.GothamBold)
+resSub.LayoutOrder = 2
+local resRows: { TextLabel } = {}
+local resFoot = label(results, "Foot", "", UDim2.new(1, 0, 0, 18), UDim2.new(), MUTED, Enum.Font.GothamBold)
+resFoot.LayoutOrder = 99
+local resultsToken = 0
+
+type ResultRow = { name: string, role: string, score: number, loot: number?, pranks: number?, scares: number?, honks: number?, caught: number?, catches: number?, returned: number? }
+Remotes.Results.OnClientEvent:Connect(function(r: { winner: string, geeseWin: boolean, rows: { ResultRow }, seconds: number, totalPranks: number })
+	resultsToken += 1
+	local my = resultsToken
+	resTitle.Text = if r.geeseWin then r.winner .. " wins! HONK." else r.winner .. " wins."
+	resSub.Text = if r.geeseWin then "The geese ruined everyone's day." else "The village is safe. For now."
+	for i, row in r.rows do
+		local l: TextLabel = resRows[i] or label(results, "Row" .. i, "", UDim2.new(1, 0, 0, 44), UDim2.new(), INK, Enum.Font.GothamBold)
+		if not resRows[i] then
+			l.LayoutOrder = 10 + i
+			l.TextXAlignment = Enum.TextXAlignment.Left
+			l.TextScaled = false
+			l.TextSize = 16
+			l.TextWrapped = true
+			resRows[i] = l
+		end
+		local mine = row.name == player.DisplayName
+		if row.role == "keeper" then
+			l.Text = string.format("🧢 %s  —  %d pts\n      %d catches  •  %d things put back", row.name, row.score, row.catches or 0, row.returned or 0)
+		else
+			l.Text = string.format("🪿 %s  —  %d pts\n      loot %d  •  pranks %d/%d  •  scares %d  •  honks %d  •  caught %d", row.name, row.score, row.loot or 0, row.pranks or 0, r.totalPranks, row.scares or 0, row.honks or 0, row.caught or 0)
+		end
+		l.TextColor3 = if mine then ORANGE else INK
+		l.Visible = true
+	end
+	for i = #r.rows + 1, #resRows do
+		resRows[i].Visible = false
+	end
+	results.Size = UDim2.fromOffset(460, 16 + 40 + 22 + #r.rows * 50 + 18 + 14 + 12)
+	results.Visible = true
+	-- countdown in the footer
+	task.spawn(function()
+		for left = r.seconds, 1, -1 do
+			if my ~= resultsToken then
+				return
+			end
+			resFoot.Text = "Next round in " .. left
+			task.wait(1)
+		end
+		if my == resultsToken then
+			results.Visible = false
+		end
+	end)
+end)
+
 type GameState = {
 	phase: string,
 	timeLeft: number,
@@ -247,6 +325,9 @@ Remotes.GameState.OnClientEvent:Connect(function(state: GameState)
 	end
 	stamBg.Visible = role == "goose"
 	note.Visible = role == "goose" and state.phase == "round"
+	if state.phase ~= "results" then
+		results.Visible = false
+	end
 
 	for i, row in state.scores do
 		local r: TextLabel = rows[i] or label(board, "Row" .. i, "", UDim2.new(1, 0, 0, 20), UDim2.new(), INK, Enum.Font.GothamBold)
