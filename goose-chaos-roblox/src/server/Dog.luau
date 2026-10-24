@@ -167,7 +167,7 @@ function Dog.update(self: Dog, now: number, dt: number, geese: { Model }, anchor
 	local nearestD = Config.DOG_SIGHT
 	for _, g in geese do
 		local root = g:FindFirstChild("HumanoidRootPart") :: BasePart?
-		if root and g:GetAttribute("Safe") ~= true then
+		if root and g:GetAttribute("Safe") ~= true and g:GetAttribute("Home") ~= true then
 			local d = (root.Position - self.root.Position).Magnitude
 			if d < nearestD then
 				nearest = g

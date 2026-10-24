@@ -648,10 +648,16 @@ RunService.Heartbeat:Connect(function(dt)
 						h.WalkSpeed *= Config.GOOSE_CARRY_MULT
 					end
 				end
+				-- your own nest is home base: no catches there (raids still happen)
+				local root = c:FindFirstChild("HumanoidRootPart") :: BasePart
+				local nestDist = (Vector3.new(root.Position.X, 0, root.Position.Z) - Vector3.new(data.nest.Position.X, 0, data.nest.Position.Z)).Magnitude
+				local home = nestDist < Config.NEST_SAFE_RADIUS
+				if c:GetAttribute("Home") ~= home then
+					c:SetAttribute("Home", home)
+				end
 				-- banking: standing on your own nest while carrying
 				local item = Items.carriedBy(c)
-				local root = c:FindFirstChild("HumanoidRootPart") :: BasePart
-				if item and (Vector3.new(root.Position.X, 0, root.Position.Z) - Vector3.new(data.nest.Position.X, 0, data.nest.Position.Z)).Magnitude < 5.5 then
+				if item and nestDist < 5.5 then
 					Items.bank(item, data.nest)
 					toast(player, "+" .. item.def.value .. "  " .. item.def.name)
 					pop(data.nest.Position + Vector3.new(0, 5, 0), "+" .. item.def.value, Color3.fromRGB(120, 230, 120))
@@ -692,7 +698,7 @@ RunService.Heartbeat:Connect(function(dt)
 				for player, data in geese do
 					local c = characterOf(player)
 					local root = c and c:FindFirstChild("HumanoidRootPart") :: BasePart?
-					if root and now >= data.safeUntil and (root.Position - kroot.Position).Magnitude < Config.CATCH_DISTANCE then
+					if root and c and now >= data.safeUntil and c:GetAttribute("Home") ~= true and (root.Position - kroot.Position).Magnitude < Config.CATCH_DISTANCE then
 						catchGoose(player)
 					end
 				end
