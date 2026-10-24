@@ -147,7 +147,7 @@ local rows: { TextLabel } = {}
 
 -- Controls hint (bottom left)
 local hint = pill("Hint", UDim2.new(0, 12, 1, -60), UDim2.fromOffset(440, 40))
-local hintText = label(hint, "Text", "E grab  •  Q drop  •  Space HONK  •  Shift sprint  •  bank at your nest", UDim2.new(1, -20, 1, 0), UDim2.new(0, 10, 0, 0), MUTED, Enum.Font.GothamBold)
+local hintText = label(hint, "Text", "E grab  •  Q drop  •  Space HONK  •  Shift sprint  •  your nest is safe", UDim2.new(1, -20, 1, 0), UDim2.new(0, 10, 0, 0), MUTED, Enum.Font.GothamBold)
 hintText.TextXAlignment = Enum.TextXAlignment.Left
 
 -- Toast (centre top)
@@ -237,7 +237,7 @@ Remotes.GameState.OnClientEvent:Connect(function(state: GameState)
 	local role = state.roles[player.Name] or "spectator"
 	if role == "goose" then
 		roleText.Text = "🪿 Goose"
-		hintText.Text = "E grab  •  Q drop  •  Space HONK  •  Shift sprint  •  bank at your nest"
+		hintText.Text = "E grab  •  Q drop  •  Space HONK  •  Shift sprint  •  your nest is safe"
 	elseif role == "keeper" then
 		roleText.Text = "🧢 Groundskeeper"
 		hintText.Text = "Touch a goose to catch it  •  E on an item puts it back  •  walk onto a nest to raid it"

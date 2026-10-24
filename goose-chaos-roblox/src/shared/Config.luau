@@ -28,6 +28,8 @@ local Config = {
 	CATCH_DISTANCE = 5, -- studs between root parts
 	NPC_KEEPER_SIGHT = 70, -- studs; only used when nobody is the groundskeeper
 	NPC_KEEPER_RAID_INTERVAL = 20,
+	KEEPER_IGNORE_AFTER_CATCH = 6, -- seconds the NPC leaves a goose alone after catching it
+	NEST_SAFE_RADIUS = 8, -- standing this close to your own nest, you can't be caught
 
 	-- Dog (let out partway through the round)
 	DOG_RELEASE_AT = 90, -- seconds into the round

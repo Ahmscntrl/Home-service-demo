@@ -47,8 +47,8 @@ local function house(parent: Instance, x: number, z: number, w: number, d: numbe
 	part({ Name = "Wall", Size = Vector3.new(w, h, d), Position = Vector3.new(x, GROUND_Y + h / 2, z), Color = wallColor, Material = Enum.Material.Brick, Parent = m })
 	-- stone base course
 	part({ Name = "Base", Size = Vector3.new(w + 0.4, 1.2, d + 0.4), Position = Vector3.new(x, GROUND_Y + 0.6, z), Color = Color3.fromRGB(120, 115, 105), Material = Enum.Material.Cobblestone, Parent = m })
-	-- gable roof from two wedges
 	-- gable roof from two wedges: a WedgePart's tall face is its back (+Z), so each half is turned to put that face at the ridge
+	local rh = 5
 	wedge({ Name = "RoofL", Size = Vector3.new(d + 2, rh, (w + 2) / 2), CFrame = CFrame.new(x - (w + 2) / 4, GROUND_Y + h + rh / 2, z) * CFrame.Angles(0, math.rad(90), 0), Color = roofColor, Material = Enum.Material.Slate, Parent = m })
 	wedge({ Name = "RoofR", Size = Vector3.new(d + 2, rh, (w + 2) / 2), CFrame = CFrame.new(x + (w + 2) / 4, GROUND_Y + h + rh / 2, z) * CFrame.Angles(0, math.rad(-90), 0), Color = roofColor, Material = Enum.Material.Slate, Parent = m })
 	-- door, windows, chimney
@@ -58,9 +58,8 @@ local function house(parent: Instance, x: number, z: number, w: number, d: numbe
 		part({ Name = "Window", Size = Vector3.new(3, 3, 0.3), Position = Vector3.new(wx, GROUND_Y + 6, z + d / 2 + 0.1), Color = Color3.fromRGB(160, 205, 235), Material = Enum.Material.Glass, Transparency = 0.35, CanCollide = false, Parent = m })
 		part({ Name = "Sill", Size = Vector3.new(3.6, 0.3, 0.8), Position = Vector3.new(wx, GROUND_Y + 4.4, z + d / 2 + 0.3), Color = Color3.fromRGB(245, 240, 230), CanCollide = false, Parent = m })
 	end
-	part({ Name = "Chimney", Size = Vector3.new(1.6, 4, 1.6), Position = Vector3.new(x + w / 2 - 3, GROUND_Y + h + rh - 0.5, z - d / 4), Color = Color3.fromRGB(110, 70, 60), Material = Enum.Material.Brick, CanCollide = false, Parent = m })
-end
 	part({ Name = "Chimney", Size = Vector3.new(1.6, 6, 1.6), Position = Vector3.new(x + w / 2 - 5, GROUND_Y + h + rh - 1, z - d / 4), Color = Color3.fromRGB(110, 70, 60), Material = Enum.Material.Brick, CanCollide = false, Parent = m })
+end
 local function hedge(parent: Instance, x: number, z: number, w: number, d: number)
 	part({ Name = "Hedge", Size = Vector3.new(w, 5, d), Position = Vector3.new(x, GROUND_Y + 2.5, z), Color = Color3.fromRGB(58, 128, 54), Material = Enum.Material.LeafyGrass, Parent = parent })
 end

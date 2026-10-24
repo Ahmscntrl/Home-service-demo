@@ -25,6 +25,7 @@ export type Npc = typeof(setmetatable({} :: {
 	raidAt: number,
 	stunnedUntil: number,
 	alive: boolean,
+	ignoreUntil: { [Model]: number },
 }, NpcKeeper))
 
 function NpcKeeper.new(spawn: Vector3, patrol: { Vector3 }): Npc
@@ -42,6 +43,7 @@ function NpcKeeper.new(spawn: Vector3, patrol: { Vector3 }): Npc
 		raidAt = os.clock() + Config.NPC_KEEPER_RAID_INTERVAL + 5,
 		stunnedUntil = 0,
 		alive = true,
+		ignoreUntil = {},
 	}, NpcKeeper)
 end
 
@@ -70,7 +72,8 @@ function NpcKeeper.update(self: Npc, now: number, geese: { Model }, nests: { Par
 	local nearestD = Config.NPC_KEEPER_SIGHT
 	for _, g in geese do
 		local root = g:FindFirstChild("HumanoidRootPart") :: BasePart?
-		if root and g:GetAttribute("Safe") ~= true then
+		local ignored = (self.ignoreUntil[g] or 0) > now
+		if root and not ignored and g:GetAttribute("Safe") ~= true and g:GetAttribute("Home") ~= true then
 			local d = (root.Position - self.root.Position).Magnitude
 			if d < nearestD then
 				nearest = g
@@ -85,6 +88,9 @@ function NpcKeeper.update(self: Npc, now: number, geese: { Model }, nests: { Par
 		local root = (nearest :: Model):FindFirstChild("HumanoidRootPart") :: BasePart
 		self.nav:moveTo(root.Position, now)
 		if nearestD < Config.CATCH_DISTANCE then
+			-- caught: lose interest in this goose for a while so he doesn't
+			-- camp its nest waiting for the safety window to end
+			self.ignoreUntil[nearest :: Model] = now + Config.KEEPER_IGNORE_AFTER_CATCH
 			return nearest
 		end
 		return nil
