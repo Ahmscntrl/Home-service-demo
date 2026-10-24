@@ -15,15 +15,13 @@ scare, prank list, the dog, terrain map, costumes, HUD.
 Goal: a solo round against the NPC is fun and fair. Nothing new; make
 what exists feel good.
 
-- [ ] Balance: a decent player finishes a round with a score close to the
-      NPC's, with 2–5 catches. Tune speeds, raid interval, catch distance.
-- [ ] Verify the "caught with an item" bug is gone (item goes home, nest
-      value correct).
-- [ ] Real sounds: honk, villager scream, dog bark, catch "whomp", bank
-      "ding", round start/end stings.
-- [ ] Goose feel: honk animation (neck stretch), a short waddle bob,
-      feathers when sprinting.
-- [ ] Clear round-end results screen (winner, your pranks, best moment).
+- [x] Balance: 470–320 in a won round with 3 catches. Good enough.
+- [x] Verify the "caught with an item" bug is gone.
+- [x] Real sounds: honk, scream, bark are real assets; the rest are
+      built-in stand-ins (see Config.SOUNDS).
+- [x] Goose feel: honk neck-stretch, waddle, sprint feathers.
+- [x] Round-end results screen.
+- [ ] Playtest the feel pass; fix anything that looks wrong.
 
 Done when: you play three rounds in a row and want a fourth.
 

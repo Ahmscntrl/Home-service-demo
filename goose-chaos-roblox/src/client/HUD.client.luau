@@ -226,7 +226,7 @@ local results = Instance.new("Frame")
 results.Name = "Results"
 results.AnchorPoint = Vector2.new(0.5, 0.5)
 results.Position = UDim2.fromScale(0.5, 0.5)
-results.Size = UDim2.fromOffset(460, 100)
+results.Size = UDim2.fromOffset(560, 100)
 results.BackgroundColor3 = CREAM
 results.BorderSizePixel = 0
 results.Visible = false
@@ -261,13 +261,15 @@ Remotes.Results.OnClientEvent:Connect(function(r: { winner: string, geeseWin: bo
 	resTitle.Text = if r.geeseWin then r.winner .. " wins! HONK." else r.winner .. " wins."
 	resSub.Text = if r.geeseWin then "The geese ruined everyone's day." else "The village is safe. For now."
 	for i, row in r.rows do
-		local l: TextLabel = resRows[i] or label(results, "Row" .. i, "", UDim2.new(1, 0, 0, 44), UDim2.new(), INK, Enum.Font.GothamBold)
+		local l: TextLabel = resRows[i] or label(results, "Row" .. i, "", UDim2.new(1, 0, 0, 48), UDim2.new(), INK, Enum.Font.GothamBold)
 		if not resRows[i] then
 			l.LayoutOrder = 10 + i
 			l.TextXAlignment = Enum.TextXAlignment.Left
+			l.TextYAlignment = Enum.TextYAlignment.Top
 			l.TextScaled = false
-			l.TextSize = 16
+			l.TextSize = 15
 			l.TextWrapped = true
+			l.AutomaticSize = Enum.AutomaticSize.Y
 			resRows[i] = l
 		end
 		local mine = row.name == player.DisplayName
@@ -283,7 +285,8 @@ Remotes.Results.OnClientEvent:Connect(function(r: { winner: string, geeseWin: bo
 	for i = #r.rows + 1, #resRows do
 		resRows[i].Visible = false
 	end
-	results.Size = UDim2.fromOffset(460, 16 + 40 + 22 + #r.rows * 50 + 18 + 14 + 12)
+	results.AutomaticSize = Enum.AutomaticSize.Y
+	results.Size = UDim2.fromOffset(560, 0)
 	results.Visible = true
 	-- countdown in the footer
 	task.spawn(function()

@@ -468,6 +468,7 @@ Remotes.Honk.OnServerEvent:Connect(function(player)
 	local root = c:FindFirstChild("HumanoidRootPart") :: BasePart
 	Sfx.at("honk", root)
 	Costumes.honkBurst(root)
+	Costumes.honkAnim(c)
 
 	-- villagers
 	local scared = Villagers.scare(root.Position, now)
@@ -693,10 +694,12 @@ RunService.Heartbeat:Connect(function(dt)
 			if c and h then
 				table.insert(gooseModels, c)
 				local moving = h.MoveDirection.Magnitude > 0
+				local sprinting = false
 				if h.WalkSpeed > 0 then
 					if data.sprinting and moving and data.stamina > 0.02 then
 						data.stamina = math.max(0, data.stamina - Config.STAMINA_DRAIN_PER_SEC * dt)
 						h.WalkSpeed = Config.GOOSE_SPRINT_SPEED
+						sprinting = true
 					else
 						data.stamina = math.min(1, data.stamina + Config.STAMINA_REGEN_PER_SEC * dt)
 						h.WalkSpeed = Config.GOOSE_WALK_SPEED
@@ -705,6 +708,8 @@ RunService.Heartbeat:Connect(function(dt)
 						h.WalkSpeed *= Config.GOOSE_CARRY_MULT
 					end
 				end
+				Costumes.waddle(c, now, moving and h.WalkSpeed > 0)
+				Costumes.setSprintFeathers(c, sprinting)
 				-- your own nest is home base: no catches there (raids still happen)
 				local root = c:FindFirstChild("HumanoidRootPart") :: BasePart
 				local nestDist = (Vector3.new(root.Position.X, 0, root.Position.Z) - Vector3.new(data.nest.Position.X, 0, data.nest.Position.Z)).Magnitude

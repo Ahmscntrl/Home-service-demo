@@ -113,8 +113,8 @@ local function nest(parent: Instance, index: number, pos: Vector3): Part
 	label.Name = "Label"
 	label.Size = UDim2.fromOffset(180, 44)
 	label.StudsOffset = Vector3.new(0, 5, 0)
-	label.AlwaysOnTop = true
-	label.MaxDistance = 120
+	label.AlwaysOnTop = false
+	label.MaxDistance = 55
 	label.Parent = base
 	local text = Instance.new("TextLabel")
 	text.Name = "Text"

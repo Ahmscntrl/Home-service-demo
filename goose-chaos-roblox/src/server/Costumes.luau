@@ -202,6 +202,71 @@ function Costumes.showStun(character: Model, seconds: number)
 	end)
 end
 
+local TweenService = game:GetService("TweenService")
+
+-- Neck stretch when honking: the head shoots forward and up, then settles
+function Costumes.honkAnim(character: Model)
+	local head = character:FindFirstChild("Head")
+	local neck = head and head:FindFirstChild("Neck") :: Motor6D?
+	if not neck then
+		return
+	end
+	local base = neck:GetAttribute("BaseC0") :: CFrame?
+	if not base then
+		base = neck.C0
+		neck:SetAttribute("BaseC0", base)
+	end
+	local b = base :: CFrame
+	neck.C0 = b * CFrame.new(0, 0.5, -0.7) * CFrame.Angles(math.rad(25), 0, 0)
+	TweenService:Create(neck, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { C0 = b }):Play()
+end
+
+-- Waddle: rock the hips side to side while walking. Call every frame.
+function Costumes.waddle(character: Model, t: number, moving: boolean)
+	local lower = character:FindFirstChild("LowerTorso")
+	local root = lower and lower:FindFirstChild("Root") :: Motor6D?
+	if not root then
+		return
+	end
+	local base = root:GetAttribute("BaseC0") :: CFrame?
+	if not base then
+		base = root.C0
+		root:SetAttribute("BaseC0", base)
+	end
+	local b = base :: CFrame
+	if moving then
+		root.C0 = b * CFrame.Angles(0, 0, math.sin(t * 11) * 0.16) * CFrame.new(0, math.abs(math.sin(t * 11)) * 0.08, 0)
+	elseif root.C0 ~= b then
+		root.C0 = b
+	end
+end
+
+-- Feathers trail off the goose while sprinting
+function Costumes.setSprintFeathers(character: Model, on: boolean)
+	local torso = character:FindFirstChild("UpperTorso") :: BasePart?
+	if not torso then
+		return
+	end
+	local existing = torso:FindFirstChild("SprintFeathers")
+	if on and not existing then
+		local em = Instance.new("ParticleEmitter")
+		em.Name = "SprintFeathers"
+		em.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+		em.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255))
+		em.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.35), NumberSequenceKeypoint.new(1, 0) })
+		em.Transparency = NumberSequence.new(0.2, 1)
+		em.Lifetime = NumberRange.new(0.4, 0.8)
+		em.Speed = NumberRange.new(2, 4)
+		em.SpreadAngle = Vector2.new(40, 40)
+		em.Rate = 14
+		em.Acceleration = Vector3.new(0, -6, 0)
+		em.EmissionDirection = Enum.NormalId.Back
+		em.Parent = torso
+	elseif not on and existing then
+		existing:Destroy()
+	end
+end
+
 -- A burst of feathers and a sound ring when a goose honks
 function Costumes.honkBurst(root: BasePart)
 	local e = Instance.new("ParticleEmitter")
