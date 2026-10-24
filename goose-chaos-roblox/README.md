@@ -94,6 +94,6 @@ src/client/HUD.client.luau       timer, role, stamina, scoreboard, toasts
 
 - Better goose look (a proper goose mesh instead of a dressed-up avatar).
 - Villagers that pick items back up and carry them around more.
-- Real honk / scream sounds (the current sound IDs are placeholders).
+- Real goose honk and scream sounds (built-in Roblox sounds are placeholders; swap IDs in Config.SOUNDS).
 - Cosmetics shop: hats, honk sounds, trails.
 - DataStore for persistent wins and best scores.

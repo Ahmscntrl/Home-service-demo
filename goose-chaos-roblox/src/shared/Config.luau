@@ -47,11 +47,29 @@ local Config = {
 
 	-- Scoring
 	POINTS_PER_HONK_LANDED = 10,
-	POINTS_PER_CATCH = 25,
-	POINTS_PER_ITEM_RETURNED = 15,
-	POINTS_PER_DOG_CATCH = 10,
+	POINTS_PER_CATCH = 60,
+	POINTS_PER_ITEM_RETURNED = 30,
+	POINTS_PER_DOG_CATCH = 30,
+	POINTS_PER_ITEM_SAFE_AT_END = 20, -- groundskeeper: each item still at home when time runs out
 	ALL_TASKS_BONUS = 150,
 	TIME_BONUS_PER_SECOND = 2, -- finishing the list early ends the round and pays this per second left
+
+	-- Sounds. These are files that ship inside Roblox itself, so they always
+	-- load. Swap any of them for a Creator Store id ("rbxassetid://123") to
+	-- change the feel; a real goose honk is the first thing to replace.
+	SOUNDS = {
+		honk = { id = "rbxasset://sounds/uuhhh.mp3", volume = 1.2, speed = 1.7 },
+		scream = { id = "rbxasset://sounds/Kid saying Ouch.wav", volume = 1, speed = 1.1 },
+		bark = { id = "rbxasset://sounds/snap.wav", volume = 1, speed = 0.55 },
+		splash = { id = "rbxasset://sounds/impact_water.mp3", volume = 1, speed = 1 },
+		bank = { id = "rbxasset://sounds/electronicpingshort.wav", volume = 0.8, speed = 1.3 },
+		caught = { id = "rbxasset://sounds/bass.wav", volume = 1, speed = 0.8 },
+		stun = { id = "rbxasset://sounds/swoosh.wav", volume = 0.9, speed = 0.7 },
+		prank = { id = "rbxasset://sounds/button.wav", volume = 0.8, speed = 1.2 },
+		roundStart = { id = "rbxasset://sounds/action_get_up.mp3", volume = 0.8, speed = 1 },
+		roundEnd = { id = "rbxasset://sounds/victory.wav", volume = 0.9, speed = 1 },
+		dogOut = { id = "rbxasset://sounds/HalloweenGhost.wav", volume = 0.7, speed = 1.3 },
+	},
 }
 
 return Config

@@ -254,7 +254,7 @@ local resFoot = label(results, "Foot", "", UDim2.new(1, 0, 0, 18), UDim2.new(), 
 resFoot.LayoutOrder = 99
 local resultsToken = 0
 
-type ResultRow = { name: string, role: string, score: number, loot: number?, pranks: number?, scares: number?, honks: number?, caught: number?, catches: number?, returned: number? }
+type ResultRow = { name: string, role: string, score: number, loot: number?, pranks: number?, scares: number?, honks: number?, caught: number?, catches: number?, returned: number?, safe: number?, timeBonus: number? }
 Remotes.Results.OnClientEvent:Connect(function(r: { winner: string, geeseWin: boolean, rows: { ResultRow }, seconds: number, totalPranks: number })
 	resultsToken += 1
 	local my = resultsToken
@@ -272,9 +272,10 @@ Remotes.Results.OnClientEvent:Connect(function(r: { winner: string, geeseWin: bo
 		end
 		local mine = row.name == player.DisplayName
 		if row.role == "keeper" then
-			l.Text = string.format("🧢 %s  —  %d pts\n      %d catches  •  %d things put back", row.name, row.score, row.catches or 0, row.returned or 0)
+			l.Text = string.format("🧢 %s  —  %d pts\n      %d catches  •  %d put back  •  %d kept safe", row.name, row.score, row.catches or 0, row.returned or 0, row.safe or 0)
 		else
-			l.Text = string.format("🪿 %s  —  %d pts\n      loot %d  •  pranks %d/%d  •  scares %d  •  honks %d  •  caught %d", row.name, row.score, row.loot or 0, row.pranks or 0, r.totalPranks, row.scares or 0, row.honks or 0, row.caught or 0)
+			local tb = if (row.timeBonus or 0) > 0 then string.format("  •  time bonus +%d", row.timeBonus or 0) else ""
+			l.Text = string.format("🪿 %s  —  %d pts\n      loot %d  •  pranks %d/%d  •  scares %d  •  honks %d  •  caught %d%s", row.name, row.score, row.loot or 0, row.pranks or 0, r.totalPranks, row.scares or 0, row.honks or 0, row.caught or 0, tb)
 		end
 		l.TextColor3 = if mine then ORANGE else INK
 		l.Visible = true

@@ -9,6 +9,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Nav = require(script.Parent.Nav)
 local Rig = require(script.Parent.Rig)
 local Items = require(script.Parent.Items)
+local Sfx = require(script.Parent.Sfx)
 
 local Villagers = {}
 
@@ -95,6 +96,7 @@ function Villagers.scare(from: Vector3, now: number): number
 			v.scaredAt = now
 			v.body.humanoid.WalkSpeed = 20
 			Rig.say(v.body, SCREAMS[math.random(#SCREAMS)], Color3.fromRGB(255, 120, 100))
+			Sfx.at("scream", v.body.root)
 			local carried = Items.carriedBy(v.body.model)
 			if carried then
 				Items.drop(carried, nil, nil)
